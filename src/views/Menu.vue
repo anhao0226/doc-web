@@ -1,35 +1,55 @@
 <template>
-  <div class="wrapper" :style="{ right: MainMenu[2] ? 0 : -320 + 'px' }">
+  <div
+    class="wrapper"
+    :style="{
+      'z-index': MainMenuInfo[2].zIndex,
+      right: MainMenuInfo[2].display ? 0 : -320 + 'px',
+    }"
+  >
     <!--  -->
     <div class="op">
-      <span @click="MainMenu[2] = false"></span>
+      <span @click="MainMenuChange(2)"></span>
     </div>
     <!--  -->
     <div class="title">Menu</div>
     <!--  -->
     <div class="container">
-        <ul class="menu">
-            <li v-for="(item, index) in SearchList" :key="index">
-                <a :href="`#${item}`">{{item}}</a>
-                <i class="iconfont icon-link"></i>
-            </li>
-        </ul>
+      <ul class="menu">
+        <li
+          v-for="(item, index) in SearchList"
+          :key="index"
+          @click="formatInputVals(index)"
+        >
+          <span>{{ index }}</span>
+          <a :href="`#${item}`">{{ item }}</a>
+          <i class="iconfont icon-link"></i>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent} from "vue";
-import { MainMenu, SearchList } from './comm'
+import { defineComponent } from "vue";
+import { SearchList, MainMenuInfo, MainMenuChange, comments } from "./comm";
+import { _inputValues, _commentIndex } from "./../store/index";
 
 export default defineComponent({
   components: {},
   setup() {
-   
+    const formatInputVals = (index: number) => {
+      _commentIndex.value = index;
+      console.log(comments.value[index]);
+      comments.value[index].Params.forEach((e:any) => {
+        _inputValues.value.push({key: (e[0] as string).trim(), val: ''});
+      })
+    };
 
     return {
-     MainMenu,
-     SearchList
+      SearchList,
+      MainMenuInfo,
+      MainMenuChange,
+      formatInputVals,
     };
   },
 });
@@ -41,12 +61,11 @@ export default defineComponent({
   position: fixed;
   right: 0px;
   min-width: 310px;
-  transition: 0.3s;
+  transition: 0.2s;
   height: 100%;
-  background-color: rgb(255, 255, 255,0.94);
+  background-color: rgb(255, 255, 255, 0.94);
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
   overflow: hidden;
-  z-index: 1000;
 }
 .op {
   /* background-color: rgba(0, 0, 0, 0.1); */

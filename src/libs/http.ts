@@ -16,7 +16,8 @@ export interface Response {
     Success: boolean
 }
 
-export function AxiosGet(config:RequestOp){
+// GET
+export function AxiosGet(config: RequestOp) {
     axios({
         url: config.url,
         method: 'GET',
@@ -28,26 +29,59 @@ export function AxiosGet(config:RequestOp){
     })
 }
 
-export function AxiosPost(config:RequestOp){
+// POST
+export function AxiosPost(config: RequestOp) {
     axios({
         url: config.url,
         method: 'POST',
         params: config.params
     }).then(res => {
-        console.log(res)
         config.success(res.data)
     }).catch(err => {
         config.error(err)
     })
 }
 
-export function AxiosGeneral(config:RequestOp){
-    switch(config.method) {
+// PUT
+export function AxiosPut(config: RequestOp) {
+    axios({
+        url: config.url,
+        method: 'PUT',
+        params: config.params
+    }).then(res => {
+        config.success(res.data)
+    }).catch(err => {
+        config.error(err)
+    })
+}
+
+// DELETE
+export function AxiosDelete(config: RequestOp) {
+    axios({
+        url: config.url,
+        method: 'DELETE',
+        params: config.params
+    }).then(res => {
+        config.success(res.data)
+    }).catch(err => {
+        config.error(err)
+    })
+}
+
+// General
+export function AxiosGeneral(config: RequestOp) {
+    switch (config.method) {
         case 'GET':
-            AxiosGet(config)
+            AxiosGet(config);
             break;
         case 'POST':
-            AxiosPost(config)
+            AxiosPost(config);
+            break;
+        case 'DELETE':
+            AxiosDelete(config);
+            break;
+        case 'PUT':
+            AxiosPut(config);
             break;
     }
 }

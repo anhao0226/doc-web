@@ -1,4 +1,5 @@
 <template>
+  <AutoTestPage v-if="MainMenuInfo[6].display"></AutoTestPage>
   <FetchComponent></FetchComponent>
   <HomeComponent></HomeComponent>
   <HeaderComponent></HeaderComponent>
@@ -8,15 +9,19 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted } from "vue";
-import { MainMenu } from "./views/comm";
+import { defineComponent, onMounted, ref } from "vue";
+import { MainMenuInfo, Tree, test } from "./views/comm";
+
+//
+import AutoTestPage from "./views/auto_test/index.vue";
 
 import FetchComponent from "./views/Fetch.vue";
 import HomeComponent from "./views/Home.vue";
 import HeaderComponent from "./views/Header.vue";
 import SettingComponent from "./views/Setting.vue";
 import MenuComponent from "./views/Menu.vue";
-import SearchComponent from './views/Search.vue'
+import SearchComponent from "./views/Search.vue";
+
 
 export default defineComponent({
   components: {
@@ -26,8 +31,16 @@ export default defineComponent({
     SettingComponent,
     MenuComponent,
     SearchComponent,
+    AutoTestPage,
   },
   setup() {
+
+    const start_sec = () => {
+      for(let i = 0; i < Tree.value.next.length; i++) {
+        test(Tree.value.next[i]);
+      }
+    }
+
     let prev = 0;
     let timer: any = null;
 
@@ -37,26 +50,34 @@ export default defineComponent({
 
     const ScrollEvent = () => {
       clearTimeout(timer);
-      MainMenu.value[0] = false;
+      MainMenuInfo.value[0].display = false;
       prev = document.documentElement.scrollTop || document.body.scrollTop;
       timer = setTimeout(() => {
         let scrollHeight =
           document.documentElement.scrollTop || document.body.scrollTop;
         if (scrollHeight == prev) {
-          MainMenu.value[0] = true;
+          MainMenuInfo.value[0].display = true;
         }
       }, 100);
     };
-
     return {
-      MainMenu
-    }
-
+      Tree,
+      start_sec,
+      MainMenuInfo
+    };
   },
 });
 </script>
 
 <style>
+.sec-start {
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 100px;
+  height: 30px;
+  background-color: cadetblue;
+}
 * {
   margin: 0;
   padding: 0;

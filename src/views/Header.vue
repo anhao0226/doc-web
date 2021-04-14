@@ -1,31 +1,36 @@
 <template>
-  <div class="wrapper" :style="{ bottom: MainMenu[0] ? 0 : -100 + 'px' }">
+  <div class="wrapper" :style="{ bottom: MainMenuInfo[0].display ? 0 : -100 + 'px' }">
     <div class="container">
       <ul class="list-box">
         <i
           class="iconfont icon-home"
-          :style="{ color: MainMenu[1] ? '#1875f0' : '' }"
+          :style="{ color: MainMenuInfo[1].display ? '#1875f0' : '' }"
           @click="MainMenuChange(1)"
         ></i>
         <i
           class="iconfont icon-list"
-          :style="{ color: MainMenu[2] ? '#1875f0' : '' }"
+          :style="{ color: MainMenuInfo[2].display ? '#1875f0' : '' }"
           @click="MainMenuChange(2)"
         ></i>
         <i
           class="iconfont icon-settings"
-          :style="{ color: MainMenu[3] ? '#1875f0' : '' }"
+          :style="{ color: MainMenuInfo[3].display ? '#1875f0' : '' }"
           @click="MainMenuChange(3)"
         ></i>
         <i
           class="iconfont icon-form"
-          :style="{ color: MainMenu[4] ? '#1875f0' : '' }"
+          :style="{ color: MainMenuInfo[4].display ? '#1875f0' : '' }"
           @click="MainMenuChange(4)"
         ></i>
         <i
           class="iconfont icon-search"
-          :style="{ color: MainMenu[5] ? '#1875f0' : '' }"
+          :style="{ color: MainMenuInfo[5].display ? '#1875f0' : '' }"
           @click="MainMenuChange(5)"
+        ></i>
+        <i
+          class="iconfont icon-search"
+          :style="{ color: MainMenuInfo[6].display ? '#1875f0' : '' }"
+          @click="MainMenuChange(6)"
         ></i>
         <i>{{ CommentsLen }}</i>
       </ul>
@@ -35,13 +40,13 @@
 
 <script lang='ts'>
 import { defineComponent } from "vue";
-import { MainMenuChange, MainMenu, CommentsLen } from "./comm";
+import { MainMenuChange,CommentsLen, MainMenuInfo } from "./comm";
 export default defineComponent({
   setup() {
     return {
       MainMenuChange,
-      MainMenu,
       CommentsLen,
+      MainMenuInfo
     };
   },
 });
@@ -54,10 +59,10 @@ export default defineComponent({
   width: 100%;
   transition: 0.3s;
   padding: 8px 0;
-  z-index: 1005;
+  z-index: 1010;
 }
 .container {
-  width: 420px;
+  width: 480px;
   height: 60px;
   margin: 0 auto;
   background-color: rgba(255, 255, 255, 1);

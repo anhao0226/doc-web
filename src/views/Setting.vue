@@ -1,7 +1,13 @@
 <template>
-  <div class="wrapper" :style="{ right: MainMenu[3] ? 0 : -320 + 'px' }">
+  <div
+    class="wrapper"
+    :style="{
+      'z-index': MainMenuInfo[3].zIndex,
+      'right': MainMenuInfo[3].display ? 0 : -320 + 'px',
+    }"
+  >
     <div class="op">
-      <span @click="MainMenu[3] = false"></span>
+      <span @click="MainMenuChange(3)"></span>
     </div>
     <div class="title">Setting</div>
     <div class="container">
@@ -67,7 +73,7 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, ref } from "vue";
-import { config, MainMenu, FetchComments } from "./comm";
+import { config, FetchComments, MainMenuInfo, MainMenuChange } from "./comm";
 import { setItem } from "./../libs/storage";
 
 export default defineComponent({
@@ -81,7 +87,7 @@ export default defineComponent({
 
     const slideBtnClickEvent = () => {
       slideBtnState.value = !slideBtnState.value;
-      setItem("2", `${slideBtnState.value}`)
+      setItem("2", `${slideBtnState.value}`);
     };
 
     const dataAddr = ref<string[]>([]);
@@ -135,9 +141,10 @@ export default defineComponent({
       saveConfig,
       inputValue,
       delConfig,
-      MainMenu,
       slideBtnState,
       slideBtnClickEvent,
+      MainMenuInfo,
+      MainMenuChange,
     };
   },
 });
@@ -149,12 +156,11 @@ export default defineComponent({
   position: fixed;
   right: 0px;
   min-width: 310px;
-  transition: 0.3s;
+  transition: 0.2s;
   height: 100%;
-  background-color: rgb(255, 255, 255,0.94);
+  background-color: rgb(255, 255, 255, 0.94);
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
   overflow: hidden;
-  z-index: 1000;
 }
 .op {
   /* background-color: rgba(0, 0, 0, 0.1); */

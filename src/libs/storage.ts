@@ -9,6 +9,7 @@ export function removeItem(key:string){
     storage.removeItem(key)
 }
 
+// 
 export interface Config {
     dataAddr: string[]
     testAddr: string[]
@@ -18,6 +19,7 @@ export interface Config {
 // 0 dataAddrs
 // 1 testAddrs
 // 2 isHttps
+// 3 sections
 
 export function loadItem(): Config{
     const config = <Config>{dataAddr:[], testAddr:[], isHttps: false}

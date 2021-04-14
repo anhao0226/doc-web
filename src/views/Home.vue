@@ -3,7 +3,7 @@
    <a class="cmt-item" v-for="(item, index) in comments" :key="index"
     @click="ClickEvent(index)" :name="`${item.Title[0]}`">
       <div class="op0" style="background-color:#409EFF">
-        <span >{{item.Title[0]}}</span>
+        <span>{{index}} {{item.Title[0]}}</span>
       </div>
      <div class="op1">
       <p>
@@ -31,7 +31,7 @@
 
 <script lang='ts'>
 import { defineComponent, onMounted, ref } from "vue";
-import { FetchComments, comments, currClickIdx, MainMenu } from "./comm";
+import { FetchComments, comments, currClickIdx, MainMenuChange } from "./comm";
 
 export default defineComponent({
   components: {},
@@ -42,7 +42,7 @@ export default defineComponent({
 
     const ClickEvent = (idx: number) => {
       currClickIdx.value = idx;
-      MainMenu.value[4] = true;
+      MainMenuChange(4, 10000);
     };
 
     return {

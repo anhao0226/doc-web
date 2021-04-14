@@ -1,5 +1,5 @@
 <template>
-  <div class="wrapper" :style="{ height: MainMenu[5]? '100%':'0'}">
+  <div class="wrapper" :style="{ height: MainMenuInfo[5].display ? '100%':'0'}">
     <div class="container">
       <div class="search-box">
         <i class="iconfont icon-search"></i>
@@ -19,8 +19,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref, watch } from "vue";
-import { SearchList, MainMenu } from "./comm";
+import { defineComponent, ref, watch } from "vue";
+import { SearchList, MainMenuInfo, MainMenuChange } from "./comm";
 export default defineComponent({
   setup() {
     const labelShowState = ref<boolean>(true);
@@ -28,7 +28,7 @@ export default defineComponent({
     const searchIndex = ref<number[]>([]);
 
     const closeMask = (e: any) => {
-      MainMenu.value[5] = false
+      MainMenuChange(5)
     };
 
     watch(searchValue, (newValue: string) => {
@@ -50,8 +50,8 @@ export default defineComponent({
       searchValue,
       searchIndex,
       SearchList,
-      MainMenu,
       closeMask,
+      MainMenuInfo,
     };
   },
 });

@@ -1,8 +1,14 @@
 <template>
-  <div class="wrapper" :style="{ right: MainMenu[4] ? '0px' : '-340px' }">
+  <div
+    class="wrapper"
+    :style="{
+      'z-index': MainMenuInfo[4].zIndex,
+      'right': MainMenuInfo[4].display ? '0px' : '-340px',
+    }"
+  >
     <!-- op -->
     <div class="op">
-      <span @click="MainMenu[4] = false"></span>
+      <span @click="MainMenuChange(4)"></span>
     </div>
     <!-- title -->
     <div class="title">
@@ -11,7 +17,7 @@
       </span>
       <span v-else>测试区域</span>
     </div>
-    <!--  -->
+    <!-- container -->
     <div class="container" v-if="currClickIdx >= 0">
       <!-- 参数渲染区 -->
       <div class="box-params">
@@ -23,7 +29,7 @@
           ></InputComponent>
         </li>
       </div>
-      <!--  -->
+      <!-- 请求按钮 -->
       <li>
         <div class="fetch-btn" @click="FetchResult">Fetch</div>
       </li>
@@ -37,7 +43,14 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
-import { currClickIdx, comments, MainMenu, Calculation, config } from "./comm";
+import {
+  currClickIdx,
+  comments,
+  Calculation,
+  config,
+  MainMenuInfo,
+  MainMenuChange,
+} from "./comm";
 import InputComponent from "./Input.vue";
 import { AxiosGeneral } from "./../libs/http";
 import { Method } from "node_modules/axios";
@@ -88,7 +101,8 @@ export default defineComponent({
       values,
       result,
       FetchResult,
-      MainMenu,
+      MainMenuInfo,
+      MainMenuChange,
     };
   },
 });
@@ -100,9 +114,8 @@ export default defineComponent({
   position: fixed;
   right: -300px;
   min-width: 310px;
-  transition: 0.3s;
+  transition: 0.2s;
   height: 100%;
-  z-index: 1001;
   background-color: rgb(255, 255, 255, 0.94);
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
   overflow: hidden;
