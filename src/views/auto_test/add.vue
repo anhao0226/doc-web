@@ -69,9 +69,7 @@ import {} from './../../libs/storage'
 import { _commentIndex, _inputValues } from './../../store/index'
 
 export default defineComponent({
-  components: {
-    InputComponent,
-  },
+  components: {},
   setup() {
 
     // // 用于存储流程图和渲染

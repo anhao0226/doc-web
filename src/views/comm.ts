@@ -5,6 +5,7 @@ import { loadItem, Config } from './../libs/storage'
 import { AxiosGeneral } from './../libs/http'
 import { Method } from 'axios'
 import { findValue } from './../libs/utils'
+import { data } from './../store/test'
 //
 export class Section {
   id = 0; // 节点id
@@ -227,27 +228,34 @@ export {
   HandleConfig,
 }
 
-
+comments.value = (data as any)
+CommentsLen.value = comments.value.length;
 // 获取文档
 function FetchComments() {
 
-  const addr = config.value.dataAddr
-  if (addr.length == 0) return
+//   const addr = config.value.dataAddr
+//   if (addr.length == 0) return
 
-  fetchDocs({
-    url: `http://${addr[0]}/doc/v1/list`,
-  }).then(res => {
-    if (res.Success) {
-      const len = res.Data.length;
-      for (let i = 0; i < len; i++) {
-        res.Data[i].Method[0] = (res.Data[i].Method[0] as string).trim().toUpperCase();
-        res.Data[i].Title[0] = (res.Data[i].Title[0] as string).trim();
-        SearchList.value.push(res.Data[i].Title[0]);
-      }
-      comments.value = res.Data;
-      CommentsLen.value = comments.value.length;
-    }
-  })
+//   fetchDocs({
+//     url: `http://${addr[0]}/doc/v1/list`,
+//   }).then(res => {
+//     if (res.Success) {
+//       const len = res.Data.length;
+//       for (let i = 0; i < len; i++) {
+//         res.Data[i].Method[0] = (res.Data[i].Method[0] as string).trim().toUpperCase();
+//         res.Data[i].Title[0] = (res.Data[i].Title[0] as string).trim();
+//         SearchList.value.push(res.Data[i].Title[0]);
+//       }
+//       comments.value = res.Data;
+//       CommentsLen.value = comments.value.length;
+
+//       console.log(comments);
+//       console.log(JSON.stringify(comments.value[0]))
+//       console.log(JSON.stringify(comments.value[1]))
+//       console.log(JSON.stringify(comments.value[2]))
+//       console.log(JSON.stringify(comments.value[3]))
+//     }
+//   })
 }
 
 

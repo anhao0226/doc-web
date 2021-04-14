@@ -39,7 +39,7 @@ export default defineComponent({
   setup() {
     const formatInputVals = (index: number) => {
       _commentIndex.value = index;
-      console.log(comments.value[index]);
+      _inputValues.value = [];
       comments.value[index].Params.forEach((e:any) => {
         _inputValues.value.push({key: (e[0] as string).trim(), val: ''});
       })
