@@ -49,7 +49,6 @@ function toString(v: any): string {
 }
 
 export function test(node: Section) {
-  // 取出要解析的值
   const comment = comments.value[node.cid];
   const url = comment.Url[0].trim();
   const method = comment.Method[0] as Method;
@@ -89,9 +88,6 @@ export function test(node: Section) {
     }
   })
 }
-
-
-
 
 
 interface Comment {
@@ -226,36 +222,40 @@ export {
   Calculation,
   FetchComments,
   HandleConfig,
+  _Init,
 }
 
-comments.value = (data as any)
+function _Init(){
+  console.log("init")
+}
+
+function formatComment(v: Comment[]):any {
+  const len = v.length;
+  for(let i = 0; i < len; i++) {
+    v[i].Method[0] = v[i].Method[0].trim().toUpperCase();
+    v[i].Title[0] = v[i].Title[0].trim();
+    SearchList.value.push(v[i].Title[0]);
+  }
+  return v
+}
+
+comments.value = formatComment(data as any)
 CommentsLen.value = comments.value.length;
+
 // 获取文档
 function FetchComments() {
+  return;
+  const addr = config.value.dataAddr
+  if (addr.length == 0) return
 
-//   const addr = config.value.dataAddr
-//   if (addr.length == 0) return
-
-//   fetchDocs({
-//     url: `http://${addr[0]}/doc/v1/list`,
-//   }).then(res => {
-//     if (res.Success) {
-//       const len = res.Data.length;
-//       for (let i = 0; i < len; i++) {
-//         res.Data[i].Method[0] = (res.Data[i].Method[0] as string).trim().toUpperCase();
-//         res.Data[i].Title[0] = (res.Data[i].Title[0] as string).trim();
-//         SearchList.value.push(res.Data[i].Title[0]);
-//       }
-//       comments.value = res.Data;
-//       CommentsLen.value = comments.value.length;
-
-//       console.log(comments);
-//       console.log(JSON.stringify(comments.value[0]))
-//       console.log(JSON.stringify(comments.value[1]))
-//       console.log(JSON.stringify(comments.value[2]))
-//       console.log(JSON.stringify(comments.value[3]))
-//     }
-//   })
+  fetchDocs({
+    url: `http://${addr[0]}/doc/v1/list`,
+  }).then(res => {
+    if (res.Success) {
+      comments.value = formatComment(res.Data);
+      CommentsLen.value = comments.value.length;
+    }
+  })
 }
 
 

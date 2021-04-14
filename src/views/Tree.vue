@@ -28,7 +28,7 @@ import { defineComponent, onMounted } from "vue";
 import { changeCurrNode, Section, Tree } from "./comm";
 export default defineComponent({
   name: "Tree",
-  props: ["list", "color"],
+  props: ["list", "color", 'cell'],
   setup(props: any) {
     const arrNum = [
       "0",

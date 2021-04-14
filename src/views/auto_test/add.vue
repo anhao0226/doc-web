@@ -72,25 +72,9 @@ export default defineComponent({
   components: {},
   setup() {
 
-    // // 用于存储流程图和渲染
-    // const sid = ref<number>(0);
-    // input 输入值
-    // const iKey = ref<string>("");
-    // const iVal = ref<string>("");
-    // const inputs = ref<{ key: string; val: string }[]>([]);
-    // next 向下执行的条件
     const nextKey = ref<string>("");
     const nextVal = ref<string>("");
     const nexts = ref<{ key: string; val: string }[]>([]);
-    //
-    // const addKeys = () => {
-    //   if (iKey.value && iVal.value) {
-    //     inputs.value.push({ key: iKey.value, val: iVal.value });
-    //     iKey.value = iVal.value = "";
-    //   } else {
-    //     alert("请输入完整值");
-    //   }
-    // };
 
     const addConds = () => {
       if (nextKey.value && nextVal.value) {
@@ -100,11 +84,6 @@ export default defineComponent({
         alert("请输入完整值");
       }
     };
-
-
-    // const delInputValue = (index: number) => {
-    //   inputs.value.splice(index, 1);
-    // }
 
     const delCondValue = (index: number) => {
       nexts.value.splice(index, 1);
@@ -124,8 +103,6 @@ export default defineComponent({
 
       _inputValues.value = [];
       nexts.value = [];
-      // 打印根节点
-      console.log(Tree);
     };
 
     const addBoxState = ref<boolean>(false);

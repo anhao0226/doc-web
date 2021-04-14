@@ -22,7 +22,6 @@ import SettingComponent from "./views/Setting.vue";
 import MenuComponent from "./views/Menu.vue";
 import SearchComponent from "./views/Search.vue";
 
-
 export default defineComponent({
   components: {
     FetchComponent,
@@ -34,17 +33,11 @@ export default defineComponent({
     AutoTestPage,
   },
   setup() {
-
-    const start_sec = () => {
-      for(let i = 0; i < Tree.value.next.length; i++) {
-        test(Tree.value.next[i]);
-      }
-    }
-
     let prev = 0;
     let timer: any = null;
 
     onMounted(() => {
+      
       window.addEventListener("scroll", ScrollEvent);
     });
 
@@ -62,14 +55,23 @@ export default defineComponent({
     };
     return {
       Tree,
-      start_sec,
-      MainMenuInfo
+      MainMenuInfo,
     };
   },
 });
 </script>
 
 <style>
+.canvas-circle {
+  width: 50px;
+  height: 50px;
+  background-color: salmon;
+  border-radius: 50%;
+  position: absolute;
+}
+#mycanvas {
+  border: 1px solid rgb(199, 198, 198);
+}
 .sec-start {
   position: absolute;
   right: 0;
@@ -85,16 +87,6 @@ export default defineComponent({
   list-style: none;
   font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB,
     Microsoft YaHei, SimSun, sans-serif;
-}
-
-.bg-mask {
-  width: 100%;
-  height: 100%;
-  background-color: saddlebrown;
-  position: absolute;
-  z-index: 100;
-  left: 0;
-  top: 0;
 }
 ::-webkit-scrollbar {
   width: 4px;

@@ -59,8 +59,8 @@ export default defineComponent({
   overflow: scroll;
 }
 .show-tree {
-  width: 1000%;
-  height: 1000%;
+  width: 100%;
+  height: 100%;
 }
 .show-add-box {
   position: fixed;
@@ -69,6 +69,7 @@ export default defineComponent({
   height: 50px;
   text-align: center;
   line-height: 50px;
+  z-index: 1000;
   background-color: seagreen;
 }
 

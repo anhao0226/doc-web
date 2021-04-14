@@ -28,7 +28,7 @@
           @click="MainMenuChange(5)"
         ></i>
         <i
-          class="iconfont icon-search"
+          class="iconfont icon-wenjuan"
           :style="{ color: MainMenuInfo[6].display ? '#1875f0' : '' }"
           @click="MainMenuChange(6)"
         ></i>
