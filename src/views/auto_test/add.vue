@@ -62,8 +62,7 @@
 
 <script lang="ts">
 import { defineComponent, ref} from "vue";
-import InputComponent from "../Input.vue";
-import { currentSectionNode, Section, Tree, nodeCountIncrease, comments} from "../comm";
+import { currentSectionNode, Section, Tree, nodeCountIncrease, depthSecCount} from "../comm";
 import { state } from './comm'
 import {} from './../../libs/storage'
 import { _commentIndex, _inputValues } from './../../store/index'
@@ -99,6 +98,11 @@ export default defineComponent({
         sec.cond[ele.key] = ele.val;
       });
       sec.id = nodeCountIncrease();
+      sec.depth = currentSectionNode.depth + 1;
+      if(depthSecCount.length <= sec.depth){
+        depthSecCount[sec.depth] = 0
+      }
+      depthSecCount[sec.depth]++;
       currentSectionNode.next.push(sec);
 
       _inputValues.value = [];

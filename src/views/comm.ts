@@ -6,7 +6,11 @@ import { AxiosGeneral } from './../libs/http'
 import { Method } from 'axios'
 import { findValue } from './../libs/utils'
 import { data } from './../store/test'
-//
+
+// 记录每一层的个数
+export const depthSecCount = <number[]>[];
+
+// 节点信息
 export class Section {
   id = 0; // 节点id
   cid = -1; // 对应的文档的id
@@ -17,6 +21,8 @@ export class Section {
   result: any = {}; // 保存当前节点结果
   children: Section[] = []; // 
   state = 0; // 该节点默认没有请求
+  pos: { x: number, y: number } = { x: 0, y: 0 }
+  depth = -1;
 }
 
 // 数据
@@ -36,11 +42,6 @@ export let currentSectionNode = Tree.value;
 //
 export function changeCurrNode(newValue: Section) {
   currentSectionNode = newValue
-}
-
-//
-function hasOwnProperty(obj: any, k: string): boolean {
-  return Object.prototype.hasOwnProperty.call(obj, k);
 }
 
 //
@@ -66,8 +67,8 @@ export function test(node: Section) {
         for (; i < len; i++) {
           const key = keys[i];
           const v = findValue(res, key.split(','), 0)
-          if(!v.valid || cond[key] !== toString(v.value)) {
-            break; 
+          if (!v.valid || cond[key] !== toString(v.value)) {
+            break;
           }
         }
         // 参数验证结果判断
@@ -225,13 +226,13 @@ export {
   _Init,
 }
 
-function _Init(){
+function _Init() {
   console.log("init")
 }
 
-function formatComment(v: Comment[]):any {
+function formatComment(v: Comment[]): any {
   const len = v.length;
-  for(let i = 0; i < len; i++) {
+  for (let i = 0; i < len; i++) {
     v[i].Method[0] = v[i].Method[0].trim().toUpperCase();
     v[i].Title[0] = v[i].Title[0].trim();
     SearchList.value.push(v[i].Title[0]);
@@ -239,12 +240,9 @@ function formatComment(v: Comment[]):any {
   return v
 }
 
-comments.value = formatComment(data as any)
-CommentsLen.value = comments.value.length;
-
 // 获取文档
 function FetchComments() {
-  return;
+
   const addr = config.value.dataAddr
   if (addr.length == 0) return
 

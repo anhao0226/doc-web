@@ -1,5 +1,5 @@
 
-import { ref, reactive } from 'vue';
+import { ref } from 'vue';
 
 interface Value {
     key: string
@@ -8,8 +8,6 @@ interface Value {
 
 const _inputValues = ref<Value[]>([])
 const _commentIndex = ref<number>(-1)
-
-
 
 export {
     _inputValues,

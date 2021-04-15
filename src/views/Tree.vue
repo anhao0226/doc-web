@@ -1,6 +1,6 @@
 <template>
   <ul class="item" :style="{ 'border-color': color }">
-    <li v-for="(item, index) in list" :key="index">
+    <li v-for="(item, index) in list" :key="index" class="section">
       <!-- 显示数据 -->
       <div @click="outputEvent(item)" class="box-test">
         <div
@@ -11,7 +11,6 @@
         >
           {{ item.cid }}
         </div>
-
         <div class="sub-id">{{ item.id }}</div>
       </div>
       <Tree
@@ -19,17 +18,35 @@
         :list="item.next"
         :color="randomColor()"
       ></Tree>
+      <!-- 数据 -->
     </li>
   </ul>
+  <canvas id="canvas"></canvas>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted } from "vue";
+import { defineComponent, nextTick, onMounted } from "vue";
 import { changeCurrNode, Section, Tree } from "./comm";
 export default defineComponent({
   name: "Tree",
-  props: ["list", "color", 'cell'],
+  props: ["list", "color", "cell"],
   setup(props: any) {
+    onMounted(() => {
+      nextTick(() => {
+        const secs = document.getElementsByClassName("section");
+        console.log(secs);
+
+        var myCanvas = document.getElementById("canvas");
+        if (myCanvas) {
+          var ctx = (myCanvas as any).getContext("2d");
+          ctx.moveTo(100, 100);
+          ctx.lineTo(200, 100);
+          ctx.strokeWidth = 5;
+          ctx.strokeStyle = "red";
+          ctx.stroke();
+        }
+      });
+    });
     const arrNum = [
       "0",
       "1",
