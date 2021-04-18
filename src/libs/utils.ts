@@ -1,4 +1,6 @@
 
+import { v4 as uuidv4 } from 'uuid';
+
 const type2Number = {
     '[object Array]': 0,
     '[object String]': 1,
@@ -8,8 +10,12 @@ const type2Number = {
     '[object Undefined]': 5,
 }
 
+const mobilePrefix: string[] = [
+    "130", "131", "132", "133", "135", "137", "138", "170", "187", "189"
+];
 
-// 
+
+//
 export interface Value {
     valid: boolean
     value: any
@@ -36,7 +42,9 @@ export function findValue(target: any, args: string[], seek: number): Value {
             break;
     }
     seek++
-    if (seek < args.length) { return findValue(value.value, args, seek) }
+    if (seek < args.length && value.valid) {
+        return findValue(value.value, args, seek)
+    }
     return value;
 }
 
@@ -63,11 +71,31 @@ export function toUpperCase(v: string): string {
 }
 
 export function calculateAbsolutePath(addr: string, url: string): string {
-        return ""
+    return ""
 }
 
-export function endChar(){
+export function endChar() {
     console.log('test')
 }
+
+/*
+    mobile
+*/
+export function getMobile(): string {
+    const i = parseInt((Math.random() * 10).toString());
+    let text: string = mobilePrefix[i];
+    for (let k = 0; k < 8; k++) {
+        text = text + Math.floor(Math.random() * 10).toString();
+    }
+    return text;
+}
+
+/*
+    uuid
+*/
+export function getUUID(): string {
+    return uuidv4().toString()
+}
+
 
 

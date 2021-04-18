@@ -5,28 +5,130 @@ import { loadItem, Config } from './../libs/storage'
 import { AxiosGeneral } from './../libs/http'
 import { Method } from 'axios'
 import { findValue } from './../libs/utils'
-import { data } from './../store/test'
 
+import { SecInputValue } from './../libs/type'
+// 加载配置
+const config = ref<Config>(loadItem());
 // 记录每一层的个数
 export const depthSecCount = <number[]>[];
 
-// 节点信息
+/* 
+  Section 节点
+  id 节点编号
+  cid 对应文档数组的下标
+  output: 输出结果
+  input: 输入
+  next: 存储向下节点
+  verify: 结果验证
+  cond: 
+  result: 
+  state: 该节点状态(是否运行)
+  depth: 节点深度
+*/
 export class Section {
-  id = 0; // 节点id
-  cid = -1; // 对应的文档的id
-  output: any = {}; // 数据
-  input: any = {}; // input
-  next: Section[] = []; // 保存需要执行的下一个节点
-  cond: any = {}; // 结果返回值验证
-  result: any = {}; // 保存当前节点结果
-  children: Section[] = []; // 
-  state = 0; // 该节点默认没有请求
-  pos: { x: number, y: number } = { x: 0, y: 0 }
+  id = 0;
+  cid = -1;
+  output: any = {};
+  input: SecInputValue[] = [];
+  next: Section[] = [];
+  verify: any = {};
+  cond: any = {};
+  result: any = {};
+  state = 0;
   depth = -1;
+  reference: string[] = [];
 }
+
+
+
+/*
+  SecState 
+*/
+export type SecState = 'SUCCESS' | 'ERROR' | "TIMEOUT"
+
+
+/*
+  des
+  src
+*/
+export function VerifyParams(des: any, src: any): boolean {
+  const keys = Object.keys(des);
+  const klen = keys.length;
+  let count = 0;
+  for (; count < klen; count++) {
+    const key = keys[count];
+    const v = findValue(src, key.split(','), 0);
+    if (!v.valid || des[key] !== toString(v.value)) {
+      break;
+    }
+  }
+  return count == klen;
+}
+
+
+/*
+  
+*/
+export function FormatInputValue(inputs: SecInputValue[]):any {
+  const input: any = {};
+  inputs.forEach((ele) => {
+    input[ele.key] = ele.data;
+  })
+  return input;
+}
+
+/*
+
+*/
+export function test(node: Section) {
+  const comment = comments.value[node.cid];
+  const url = comment.Url[0].trim();
+  const method = comment.Method[0] as Method;
+  AxiosGeneral({
+    url: Calculation(config.value.testAddr[0], url),
+    method: method,
+    params: FormatInputValue(node.input),
+    success: (res: any) => {
+      node.result = { state: false, data: res };
+      // 请求成功并且参数验证成功
+      if (res && VerifyParams(node.verify, res)) {
+        node.result.state = true;
+        for (let k = 0; k < node.next.length; k++) {
+          // 应用父节点的值
+          if (node.next[k].reference.length > 0) {
+            if (node.next[k].reference[0] === "input") {
+              node.next[k].input = node.input;
+            }
+          }
+          test(node.next[k]);
+        }
+      }
+    },
+    error: (err: Error) => {
+      node.result.data = err;
+    }
+  })
+}
+
+
+
+
+
+
+
+
+
+
+
+
 
 // 数据
 const Tree = ref<Section>(new Section())
+
+if (config.value.sections) {
+  console.log(config.value.sections);
+  Tree.value = config.value.sections;
+}
 
 //
 export let nodeCount = 0;
@@ -36,12 +138,15 @@ export function nodeCountIncrease(): number {
   return nodeCount++
 }
 
+
+export const currClickSection = ref<Section>(new Section())
 //
 export let currentSectionNode = Tree.value;
 
 //
 export function changeCurrNode(newValue: Section) {
-  currentSectionNode = newValue
+  currentSectionNode = newValue;
+  currClickSection.value = newValue;
 }
 
 //
@@ -49,46 +154,7 @@ function toString(v: any): string {
   return new String(v).toString();
 }
 
-export function test(node: Section) {
-  const comment = comments.value[node.cid];
-  const url = comment.Url[0].trim();
-  const method = comment.Method[0] as Method;
-  AxiosGeneral({
-    url: Calculation(config.value.testAddr[0], url),
-    method: method,
-    params: node.input,
-    success: (res: any) => {
-      if (res) {
-        let i = 0;
-        const cond = node.cond;
-        const keys = Object.keys(cond);
-        const len = keys.length;
-        // 验证参数
-        for (; i < len; i++) {
-          const key = keys[i];
-          const v = findValue(res, key.split(','), 0)
-          if (!v.valid || cond[key] !== toString(v.value)) {
-            break;
-          }
-        }
-        // 参数验证结果判断
-        node.result.data = res;
-        if (i == len) {
-          node.result.state = true;
-          node.state = 1
-          for (let k = 0; k < node.next.length; k++) {
-            test(node.next[k]);
-          }
-        }
-      }
-      console.log(Tree);
-    },
 
-    error: (err: Error) => {
-      console.log(err)
-    }
-  })
-}
 
 
 interface Comment {
@@ -103,8 +169,7 @@ interface Comment {
   Other: string[]
 }
 
-// 加载配置
-const config = ref<Config>(loadItem());
+
 
 // 对应点击的文档块
 const currClickIdx = ref<number>(-1);

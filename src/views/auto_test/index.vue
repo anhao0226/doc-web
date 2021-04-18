@@ -1,45 +1,50 @@
 <template>
-  <div class="wrapper" :style="{'z-index': MainMenuInfo[6].zIndex}">
+  <div class="wrapper" :style="{ 'z-index': MainMenuInfo[6].zIndex }">
     <div class="container">
-        <AddComponent></AddComponent>
-        <div class="show-add-box">
-          <span @click="state=true">Show</span>
-          <span @click="start_run">Run</span>
-        </div>
-        <div class="show-tree">
-          <TreeComponent :list="Tree.next"></TreeComponent>
-        </div>
+      <!--  -->
+      <DetailsComponent></DetailsComponent>
+      <!--  -->
+      <AddComponent></AddComponent>
+      <div class="show-add-box">
+        <span @click="state = true">Show</span>
+        <span @click="start_run">Run</span>
+      </div>
+      <div class="show-tree">
+        <TreeComponent :list="Tree.next"></TreeComponent>
+      </div>
     </div>
-  </div> 
+  </div>
 </template>
 
 <script>
-import { defineComponent } from "vue";
-import AddComponent from './add.vue'
-import TreeComponent from '../Tree.vue'
-import { Tree, test, MainMenuInfo } from './../comm'
-import { state } from './comm'
+import { defineComponent, onMounted } from "vue";
+import AddComponent from "./add.vue";
+import TreeComponent from "../Tree.vue";
+import DetailsComponent from "./details.vue";
+import { getUUID } from './../../libs/utils'
+
+import { Tree, test, MainMenuInfo } from "./../comm";
+import { state } from "./comm";
 
 export default defineComponent({
   components: {
     AddComponent,
-    TreeComponent
+    TreeComponent,
+    DetailsComponent,
   },
   setup() {
-
     const start_run = () => {
-      for(let i = 0; i < Tree.value.next.length; i++){
+      for (let i = 0; i < Tree.value.next.length; i++) {
         test(Tree.value.next[i]);
       }
-    }
+    };
     return {
       Tree,
       state,
       start_run,
-      MainMenuInfo
-    }
-  }
-  
+      MainMenuInfo,
+    };
+  },
 });
 </script>
 
@@ -77,5 +82,4 @@ export default defineComponent({
   display: inline-block;
   width: 100px;
 }
-
 </style>

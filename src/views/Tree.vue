@@ -21,32 +21,16 @@
       <!-- 数据 -->
     </li>
   </ul>
-  <canvas id="canvas"></canvas>
 </template>
 
 <script lang="ts">
-import { defineComponent, nextTick, onMounted } from "vue";
+import { defineComponent } from "vue";
 import { changeCurrNode, Section, Tree } from "./comm";
+import { detailsBoxState } from "./auto_test/comm";
 export default defineComponent({
   name: "Tree",
   props: ["list", "color", "cell"],
   setup(props: any) {
-    onMounted(() => {
-      nextTick(() => {
-        const secs = document.getElementsByClassName("section");
-        console.log(secs);
-
-        var myCanvas = document.getElementById("canvas");
-        if (myCanvas) {
-          var ctx = (myCanvas as any).getContext("2d");
-          ctx.moveTo(100, 100);
-          ctx.lineTo(200, 100);
-          ctx.strokeWidth = 5;
-          ctx.strokeStyle = "red";
-          ctx.stroke();
-        }
-      });
-    });
     const arrNum = [
       "0",
       "1",
@@ -77,9 +61,9 @@ export default defineComponent({
     };
 
     const outputEvent = (v: any) => {
-      console.log(Tree);
       console.log(v);
       changeCurrNode(v);
+      detailsBoxState.value = true;
     };
     return {
       outputEvent,

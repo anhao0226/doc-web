@@ -40,9 +40,14 @@ export default defineComponent({
     const formatInputVals = (index: number) => {
       _commentIndex.value = index;
       _inputValues.value = [];
-      comments.value[index].Params.forEach((e:any) => {
-        _inputValues.value.push({key: (e[0] as string).trim(), val: ''});
-      })
+      comments.value[index].Params.forEach((e: any) => {
+        _inputValues.value.push({
+          key: (e[0] as string).trim(),
+          data: "",
+          auto: false,
+          type: "string",
+        });
+      });
     };
 
     return {

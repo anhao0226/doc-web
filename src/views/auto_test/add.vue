@@ -1,112 +1,140 @@
 <template>
-  <div class="wrapper" :style="{'width': state ? '400px' : '0'}">
-    <div class="container">
-      <div class="title_bar">
-        <span class="close" @click="hiddenAddBox"></span>
-      </div>
-      <!-- 对应的注释下标 -->
-      <div class="box sec-id">
-        {{_commentIndex}}
-      </div>
-      <!-- 测试输入参数 -->
-      <div class="box sec-input">
-        <p class="label">Input Value</p>
-        <table class="gridtable">
-          <tr>
-            <th>key</th>
-            <th>value</th>
-            <th>op</th>
-          </tr>
-          <tr v-for="(item, index) in _inputValues" :key="index">
-            <td>{{ item.key }}</td>
-            <td><input class="input" type="text" v-model="item.val" /></td>
-            <td><i class="iconfont icon-trash"></i></td>
-          </tr>
-        </table>
-      </div>
-
-      <div class="box sec-cond">
-        <p class="label">Verify Value</p>
-        <table class="gridtable">
-          <tr>
-            <th>key</th>
-            <th>value</th>
-            <th>op</th>
-          </tr>
-          <tr v-for="(item, index) in nexts" :key="index">
-            <td>{{ item.key }}</td>
-            <td>{{ item.val }}</td>
-            <td><i class="iconfont icon-trash" @click="delCondValue(index)"></i></td>
-          </tr>
-          <tr>
-            <td>
-              <input class="input" type="text" v-model="nextKey" />
-            </td>
-            <td>
-              <input class="input" type="text" v-model="nextVal" />
-            </td>
-            <td>
-              <i class="iconfont icon-add" @click="addConds"></i>
-            </td>
-          </tr>
-        </table>
-      </div>
-
-      <!--  -->
-      <div class="box sec-new">
-        <div class="box-new" @click="newSec">New</div>
-      </div>
-    </div>
+  <div class="section_add">
+    <DrawerComponent :width="500" algin="left" v-model="state" :zIndex="10000">
+      <template v-slot:title>Add</template>
+      <template v-slot:content>
+        <!--  -->
+        <div class="box sec-input">
+          <p class="label">
+            <span>Ref</span>
+            <input type="text" v-model="refValue">
+          </p>
+        </div>
+        <!--  -->
+        <div class="box sec-input">
+          <p class="label">
+            <span>Input</span>
+          </p>
+          <table class="gridtable">
+            <tr>
+              <th>key</th>
+              <th>value</th>
+              <th>auto</th>
+              <th>type</th>
+            </tr>
+            <tr v-for="(item, index) in _inputValues" :key="index">
+              <td>{{ item.key }}</td>
+              <td><input class="input" type="text" v-model="item.data" /></td>
+              <td><input class="input" type="text" v-model="item.auto" /></td>
+              <td><input class="input" type="text" v-model="item.type" /></td>
+            </tr>
+          </table>
+        </div>
+        <!--  -->
+        <div class="box sec-cond">
+          <p class="label">
+            <span>Verify</span>
+            <span style="padding: 0 50px" @click="addVerifyCond">new</span>
+          </p>
+          <table class="gridtable">
+            <tr>
+              <th>key</th>
+              <th>value</th>
+              <th>op</th>
+            </tr>
+            <tr v-for="(item, index) in verify" :key="index">
+              <td><input class="input" type="text" v-model="item.key" /></td>
+              <td><input class="input" type="text" v-model="item.val" /></td>
+              <td>
+                <i class="iconfont icon-trash" @click="delCondValue(index)"></i>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <!--  -->
+        <div class="box sec-new">
+          <div @click="newSec">New</div>
+        </div>
+      </template>
+    </DrawerComponent>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref} from "vue";
-import { currentSectionNode, Section, Tree, nodeCountIncrease, depthSecCount} from "../comm";
-import { state } from './comm'
-import {} from './../../libs/storage'
-import { _commentIndex, _inputValues } from './../../store/index'
+import { defineComponent, ref } from "vue";
+import DrawerComponent from "./../../components/Drawer.vue";
+import {
+  currentSectionNode,
+  Section,
+  Tree,
+  nodeCountIncrease,
+  depthSecCount,
+} from "../comm";
+import { state } from "./comm";
+import { saveSections } from "./../../libs/storage";
+import { _commentIndex, _inputValues } from "./../../store/index";
+import { getMobile, getUUID } from "@/libs/utils";
 
 export default defineComponent({
-  components: {},
+  components: {
+    DrawerComponent,
+  },
   setup() {
+    const refValue = ref<string>(""); 
+    const verify = ref<{ key: string; val: string }[]>([]);
 
-    const nextKey = ref<string>("");
-    const nextVal = ref<string>("");
-    const nexts = ref<{ key: string; val: string }[]>([]);
-
-    const addConds = () => {
-      if (nextKey.value && nextVal.value) {
-        nexts.value.push({ key: nextKey.value, val: nextVal.value });
-        nextKey.value = nextVal.value = "";
-      } else {
-        alert("请输入完整值");
-      }
+    const addVerifyCond = () => {
+      verify.value.push({ key: "", val: "" });
     };
 
     const delCondValue = (index: number) => {
-      nexts.value.splice(index, 1);
-    }
+      verify.value.splice(index, 1);
+    };
 
     const newSec = () => {
       let sec = new Section();
       sec.cid = _commentIndex.value;
       _inputValues.value.forEach((ele) => {
-        sec.input[ele.key] = ele.val;
+        let v = "";
+        if (ele.auto) {
+          switch (ele.type) {
+            case "mobile":
+              v = getMobile();
+              break;
+            case "uuid":
+              v = getUUID();
+              break;
+          }
+        }
+        sec.input.push({
+          key: ele.key,
+          data: v,
+          auto: ele.auto,
+          type: ele.type,
+        });
       });
-      nexts.value.forEach((ele) => {
-        sec.cond[ele.key] = ele.val;
+
+    if(refValue.value.toString().length > 0){
+      sec.reference.push(refValue.value.toString());
+    }
+      
+
+      verify.value.forEach((ele) => {
+        sec.verify[ele.key] = ele.val;
       });
+
       sec.id = nodeCountIncrease();
       sec.depth = currentSectionNode.depth + 1;
-      if(depthSecCount.length <= sec.depth){
-        depthSecCount[sec.depth] = 0
+      if (depthSecCount.length <= sec.depth) {
+        depthSecCount[sec.depth] = 0;
       }
       depthSecCount[sec.depth]++;
       currentSectionNode.next.push(sec);
 
+      saveSections(JSON.stringify(Tree.value));
+
       _inputValues.value = [];
-      nexts.value = [];
+      verify.value = [];
     };
 
     const addBoxState = ref<boolean>(false);
@@ -115,11 +143,8 @@ export default defineComponent({
     };
 
     return {
-      nexts,
-      nextKey,
-      nextVal,
-
-      addConds,
+      verify,
+      addVerifyCond,
 
       newSec,
       Tree,
@@ -130,42 +155,16 @@ export default defineComponent({
       delCondValue,
       _inputValues,
       _commentIndex,
+      refValue,
     };
   },
 });
 </script>
 
 <style scoped>
-.wrapper {
-  height: 100%;
-  position: absolute;
-  left: 0;
-  top: 0;
-  overflow: hidden;
-  transition: 0.3s;
-}
-.container {
-  width: 400px;
-  height: 100%;
-  background-color: rgba(255, 255, 255, 0.9);
-  text-align: center;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-}
-.title_bar {
-  width: 100%;
-  height: 16px;
-  /* background-color: rosybrown; */
-  text-align: right;
-  line-height: 16px;
-}
-
-.title_bar span {
-  width: 12px;
-  height: 12px;
-  background-color: royalblue;
-  display: inline-block;
-  border-radius: 50%;
-  margin-right: 4px;
+.box {
+  width: 90%;
+  padding: 0 5%;
 }
 
 table.gridtable {
@@ -175,27 +174,21 @@ table.gridtable {
   border-width: 1px;
   border-color: #606266;
   border-collapse: collapse;
-  margin: auto;
 }
 table.gridtable th {
-  border-width: 1px;
   padding: 8px;
-  border-style: solid;
-  border-color: #606266;
-  /* background-color: #dedede; */
+  border: none;
+  min-width: 100px;
+  border-bottom: 2px solid #606266;
+  text-align: center;
 }
 table.gridtable td {
-  border-width: 1px;
   padding: 8px;
-  border-style: solid;
-  /* border-color: #666666; */
+  border: none;
+  min-width: 100px;
+  border-bottom: 2px solid #606266;
   font-size: 1rem;
-  /* background-color: royalblue; */
-}
-
-.box {
-  display: inline-block;
-  width: 100%;
+  text-align: center;
 }
 
 .box .input {
@@ -213,17 +206,16 @@ table.gridtable td {
   font-weight: 600;
 }
 
-.sec-new {
-  margin-top: 10px;
-  width: 386px;
-  padding: 8px 0;
-  color: #ffffff;
-  background-color: #606266;
+.sec-cond {
+  margin-top: 30px;
 }
 
-.sec-id {
-  padding: 16px 0;
-  width: 386px;
-  /* background-color: salmon; */
+.sec-new div {
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 10px 0;
+  border-radius: 2px;
+  margin-top: 20px;
+  text-align: center;
+  color: #fff;
 }
 </style>
