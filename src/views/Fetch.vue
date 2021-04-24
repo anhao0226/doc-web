@@ -1,26 +1,14 @@
 <template>
-  <div
-    class="wrapper"
-    :style="{
-      'z-index': MainMenuInfo[4].zIndex,
-      'right': MainMenuInfo[4].display ? '0px' : '-340px',
-    }"
-  >
-    <!-- op -->
-    <div class="op">
-      <span @click="MainMenuChange(4)"></span>
-    </div>
-    <!-- title -->
-    <div class="title">
+  <DrawerComponent v-model="MainMenuInfo[4].display" :width="300" algin="right">
+    <template v-slot:title>
       <span v-if="currClickIdx >= 0">
         {{ comments[currClickIdx].Title[0] }}
       </span>
       <span v-else>测试区域</span>
-    </div>
-    <!-- container -->
-    <div class="container" v-if="currClickIdx >= 0">
+    </template>
+    <template v-slot:content>
       <!-- 参数渲染区 -->
-      <div class="box-params">
+      <div class="box-params" v-if="currClickIdx > -1">
         <li v-for="(item, index) in comments[currClickIdx].Params" :key="index">
           <InputComponent
             :width="280"
@@ -37,8 +25,8 @@
       <div class="result">
         <pre>{{ result }}</pre>
       </div>
-    </div>
-  </div>
+    </template>
+  </DrawerComponent>
 </template>
 
 <script lang="ts">
@@ -54,10 +42,12 @@ import {
 import InputComponent from "./Input.vue";
 import { AxiosGeneral } from "./../libs/http";
 import { Method } from "node_modules/axios";
+import DrawerComponent from "./../components/Drawer.vue";
 
 export default defineComponent({
   components: {
     InputComponent,
+    DrawerComponent,
   },
   setup() {
     const values = ref<string[]>([]);

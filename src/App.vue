@@ -1,58 +1,43 @@
 <template>
-  <AutoTestPage v-if="MainMenuInfo[6].display"></AutoTestPage>
-  <FetchComponent></FetchComponent>
-  <HomeComponent></HomeComponent>
+  <div id="app">
+    <router-view></router-view>
+  </div>
+  <!-- 底部菜单 -->
   <HeaderComponent></HeaderComponent>
-  <SettingComponent></SettingComponent>
-  <MenuComponent></MenuComponent>
-  <SearchComponent></SearchComponent>
 </template>
 
 <script lang="ts">
 import { defineComponent, onMounted, ref } from "vue";
 import { MainMenuInfo, Tree, test } from "./views/comm";
 
-//
-import AutoTestPage from "./views/auto_test/index.vue";
-
-import FetchComponent from "./views/Fetch.vue";
-import HomeComponent from "./views/Home.vue";
 import HeaderComponent from "./views/Header.vue";
-import SettingComponent from "./views/Setting.vue";
-import MenuComponent from "./views/Menu.vue";
-import SearchComponent from "./views/Search.vue";
+
 
 export default defineComponent({
   components: {
-    FetchComponent,
-    HomeComponent,
     HeaderComponent,
-    SettingComponent,
-    MenuComponent,
-    SearchComponent,
-    AutoTestPage,
   },
   setup() {
     let prev = 0;
     let timer: any = null;
 
-    onMounted(() => {
-      
-      window.addEventListener("scroll", ScrollEvent);
-    });
+    // onMounted(() => {
+    //   window.addEventListener("scroll", ScrollEvent);
+    // });
 
-    const ScrollEvent = () => {
-      clearTimeout(timer);
-      MainMenuInfo.value[0].display = false;
-      prev = document.documentElement.scrollTop || document.body.scrollTop;
-      timer = setTimeout(() => {
-        let scrollHeight =
-          document.documentElement.scrollTop || document.body.scrollTop;
-        if (scrollHeight == prev) {
-          MainMenuInfo.value[0].display = true;
-        }
-      }, 100);
-    };
+    // const ScrollEvent = () => {
+    //   console.log("test")
+    //   clearTimeout(timer);
+    //   MainMenuInfo.value[0].display = false;
+    //   prev = document.documentElement.scrollTop || document.body.scrollTop;
+    //   timer = setTimeout(() => {
+    //     let scrollHeight =
+    //       document.documentElement.scrollTop || document.body.scrollTop;
+    //     if (scrollHeight == prev) {
+    //       MainMenuInfo.value[0].display = true;
+    //     }
+    //   }, 100);
+    // };
     return {
       Tree,
       MainMenuInfo,
@@ -62,6 +47,10 @@ export default defineComponent({
 </script>
 
 <style>
+#app {
+  width: 100%;
+  height: 100%;
+}
 .canvas-circle {
   width: 50px;
   height: 50px;

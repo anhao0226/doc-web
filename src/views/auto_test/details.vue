@@ -5,6 +5,11 @@
       <template v-slot:content>
         <div>
           <p>{{currClickSection.cid}}</p>
+          <div>
+            <pre>
+              {{currClickSection.result.data}}
+            </pre>
+          </div>
         </div>
       </template>
     </DrawerComponent>

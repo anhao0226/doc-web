@@ -98,6 +98,7 @@ export default defineComponent({
   color: #fff;
   font-size: 1.3rem;
   border: 1px solid #fff;
+  cursor: pointer;
 }
 .content {
   display: inline-block;

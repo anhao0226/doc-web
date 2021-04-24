@@ -27,19 +27,29 @@
      </div>
    </a>
  </div>
+ <SettingComponent></SettingComponent>
+ <MenuComponent></MenuComponent>
+ <SearchComponent></SearchComponent>
+ <FetchComponent></FetchComponent>
 </template>
 
 <script lang='ts'>
 import { defineComponent, onMounted, ref } from "vue";
 import { FetchComments, comments, currClickIdx, MainMenuChange } from "./comm";
+import SettingComponent from './Setting.vue'
+import MenuComponent from './Menu.vue'
+import SearchComponent from './Search.vue'
+import FetchComponent from './Fetch.vue'
 
 export default defineComponent({
-  components: {},
+  components: {
+    SettingComponent,
+    MenuComponent,
+    SearchComponent,
+    FetchComponent,
+  },
   setup() {
-    onMounted(() => {
-      FetchComments();
-    });
-
+   
     const ClickEvent = (idx: number) => {
       currClickIdx.value = idx;
       MainMenuChange(4, 10000);

@@ -2,7 +2,7 @@ import axios, { Method } from "axios";
 
 export interface RequestOp {
     url?: string
-    method?: Method
+    method?: any
     params?: any
     header?: any
     data?: any

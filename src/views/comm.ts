@@ -7,8 +7,13 @@ import { Method } from 'axios'
 import { findValue } from './../libs/utils'
 
 import { SecInputValue } from './../libs/type'
+
+import { InitAutoTest } from './automated/store'
 // 加载配置
 const config = ref<Config>(loadItem());
+
+
+InitAutoTest(config.value.sections);
 // 记录每一层的个数
 export const depthSecCount = <number[]>[];
 
@@ -320,6 +325,9 @@ function FetchComments() {
     }
   })
 }
+
+
+FetchComments();
 
 
 

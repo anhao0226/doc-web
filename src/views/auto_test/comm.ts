@@ -1,5 +1,5 @@
 
-import { ref } from 'vue'
+import { ref } from 'vue';
 
 export const state = ref<boolean>(false);
 

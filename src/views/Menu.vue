@@ -1,19 +1,7 @@
 <template>
-  <div
-    class="wrapper"
-    :style="{
-      'z-index': MainMenuInfo[2].zIndex,
-      right: MainMenuInfo[2].display ? 0 : -320 + 'px',
-    }"
-  >
-    <!--  -->
-    <div class="op">
-      <span @click="MainMenuChange(2)"></span>
-    </div>
-    <!--  -->
-    <div class="title">Menu</div>
-    <!--  -->
-    <div class="container">
+  <DrawerCompoment v-model="MainMenuInfo[2].display" algin="left" :width="300">
+    <template v-slot:title>Menu</template>
+    <template v-slot:content>
       <ul class="menu">
         <li
           v-for="(item, index) in SearchList"
@@ -25,17 +13,20 @@
           <i class="iconfont icon-link"></i>
         </li>
       </ul>
-    </div>
-  </div>
+    </template>
+  </DrawerCompoment>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import { SearchList, MainMenuInfo, MainMenuChange, comments } from "./comm";
 import { _inputValues, _commentIndex } from "./../store/index";
+import DrawerCompoment from "./../components/Drawer.vue";
 
 export default defineComponent({
-  components: {},
+  components: {
+    DrawerCompoment,
+  },
   setup() {
     const formatInputVals = (index: number) => {
       _commentIndex.value = index;
@@ -109,6 +100,7 @@ export default defineComponent({
   font-size: 0.9rem;
   border-bottom: 1px solid #eee;
   padding: 12px 0;
+  overflow: hidden;
 }
 
 .container {

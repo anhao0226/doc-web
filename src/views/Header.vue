@@ -1,5 +1,8 @@
 <template>
-  <div class="wrapper" :style="{ bottom: MainMenuInfo[0].display ? 0 : -100 + 'px' }">
+  <div
+    class="wrapper"
+    :style="{ bottom: MainMenuInfo[0].display ? 0 : -100 + 'px' }"
+  >
     <div class="container">
       <ul class="list-box">
         <i
@@ -27,11 +30,15 @@
           :style="{ color: MainMenuInfo[5].display ? '#1875f0' : '' }"
           @click="MainMenuChange(5)"
         ></i>
-        <i
-          class="iconfont icon-wenjuan"
-          :style="{ color: MainMenuInfo[6].display ? '#1875f0' : '' }"
-          @click="MainMenuChange(6)"
-        ></i>
+        <!-- 跳转到自动化测试页面 -->
+        <router-link :to="{ name: 'automated' }">
+          <i
+            class="iconfont icon-wenjuan"
+            :style="{ color: MainMenuInfo[6].display ? '#1875f0' : '' }"
+            @click="MainMenuChange(6)"
+          ></i>
+        </router-link>
+
         <i>{{ CommentsLen }}</i>
       </ul>
     </div>
@@ -40,13 +47,13 @@
 
 <script lang='ts'>
 import { defineComponent } from "vue";
-import { MainMenuChange,CommentsLen, MainMenuInfo } from "./comm";
+import { MainMenuChange, CommentsLen, MainMenuInfo } from "./comm";
 export default defineComponent({
   setup() {
     return {
       MainMenuChange,
       CommentsLen,
-      MainMenuInfo
+      MainMenuInfo,
     };
   },
 });

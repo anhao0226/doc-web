@@ -1,16 +1,9 @@
 <template>
-  <div
-    class="wrapper"
-    :style="{
-      'z-index': MainMenuInfo[3].zIndex,
-      'right': MainMenuInfo[3].display ? 0 : -320 + 'px',
-    }"
-  >
-    <div class="op">
-      <span @click="MainMenuChange(3)"></span>
-    </div>
-    <div class="title">Setting</div>
-    <div class="container">
+  <DrawerComponent algin="right" v-model="MainMenuInfo[3].display" :width="400">
+    <!-- 设置 -->
+    <template v-slot:title>Setting</template>
+    <!-- 数据 -->
+    <template v-slot:content>
       <div class="config-box">
         <ul class="menu">
           <li>
@@ -33,7 +26,7 @@
           </li>
         </ul>
       </div>
-      <div class="config-box">
+       <div class="config-box">
         <ul class="menu">
           <li>
             <span>test addr</span>
@@ -67,17 +60,20 @@
           </li>
         </ul>
       </div>
-    </div>
-  </div>
+    </template>
+  </DrawerComponent>
 </template>
 
 <script lang="ts">
 import { defineComponent, onMounted, ref } from "vue";
 import { config, FetchComments, MainMenuInfo, MainMenuChange } from "./comm";
 import { setItem } from "./../libs/storage";
+import DrawerComponent from './../components/Drawer.vue'
 
 export default defineComponent({
-  components: {},
+  components: {
+    DrawerComponent,
+  },
   setup() {
     onMounted(() => {
       dataAddr.value = config.value.dataAddr;

@@ -10,7 +10,7 @@
         <slot name="title"></slot>
       </div>
       <!-- 内容区 -->
-      <div class="container">
+      <div class="content">
         <slot name="content"></slot>
       </div>
     </div>
@@ -29,8 +29,11 @@ export default defineComponent({
   },
   emits: ["close", "update:modelValue"],
   setup(props: any, ctx: any) {
+    // 抽屉样式
     const drawerState = ref<boolean>(props.modelValue);
+    //
     const widthStyle = ref<number>(0);
+    // 保存样式
     const styles = ref<string[]>([]);
 
     watch(
@@ -44,14 +47,13 @@ export default defineComponent({
         }
       }
     );
-
+    
     styles.value.push(`${props.algin}:0`);
     if (props.zIndex) {
       styles.value.push(`z-index:${props.zIndex}`);
     }
 
     const drawerClose = () => {
-      console.log("Test");
       drawerState.value = !drawerState.value;
       ctx.emit("update:modelValue", false);
       ctx.emit("close", false);
@@ -68,15 +70,18 @@ export default defineComponent({
 
 <style lang="css" scoped>
 .drawer {
-  position: absolute;
-  right: 0;
+  position: fixed;
+  top: 0;
   width: 0;
   height: 100%;
-  top: 0;
   background-color: rgba(255, 255, 255, 0.9);
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   transition: 0.26s;
+}
+.container {
+  width: 100%;
+  height: 100%;
 }
 .toolbar span {
   display: inline-block;
@@ -100,7 +105,7 @@ export default defineComponent({
   font-weight: 600;
   color: #606266;
 }
-.container {
+.content {
   width: 100%;
   height: calc(100% - 60px);
 }
