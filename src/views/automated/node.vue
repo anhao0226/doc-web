@@ -1,73 +1,47 @@
 <template>
   <div
-    class="node-container"
-    @mousedown="mousedownEvent($event)"
-    @mouseup="mouseupEvent($event)"
-    :style="{ top: `${G_CurrNode.pos.y}px`, left: `${G_CurrNode.pos.x}px` }"
-  >
-    123
-  </div>
+    class="default"
+    :style="{
+      top: `${SSections[seek].pos.sy}px`,
+      left: `${SSections[seek].pos.sx}px`,
+      'background-color': bgColor,
+    }"
+  ></div>
 </template>
 
 <script lang='ts'>
-import { defineComponent, watch, ref, onMounted } from "vue";
-import { G_ToggleCurrNode, G_CurrNode } from "./store";
+import { defineComponent, ref, watch } from "vue";
+import { SSections } from "./store";
 
 export default defineComponent({
-  props: ["pos", "value", "move", "seek"],
-  emits: ['update:move'],
-  setup(props: any, ctx:any) {
-    let isDown = false;
-    let clickLeft = 0;
-    let clickTop = 0;
+  props: ["seek"],
+  setup(props: any, ctx: any) {
+    // 0 default] 1 fetch] 2]
+    const bgColor = ref<string>("#6495ed");
 
-    onMounted(() => {
-      console.log(props.value)
-    })
-
-    // 坐标信息
-    const posInfo = ref<{ x: number; y: number }>({
-      x: props.pos.x,
-      y: props.pos.y,
+    watch(SSections.value[props.seek], () => {
+      if (SSections.value[props.seek].state.fetch) {
+        bgColor.value = "#67c23a";
+      } else {
+        bgColor.value = "#f56c6c";
+      }
     });
 
-    watch(
-      () => props.value,
-      (newValue:any) => {
-        posInfo.value.x = newValue.pos.x;
-        posInfo.value.y = newValue.pos.y;
-      }
-    );
-
-    const mousedownEvent = (e: any) => {
-      ctx.emit("update:move", true);
-      G_ToggleCurrNode(props.value);
-      clickLeft = e.clientX - posInfo.value.x;
-      clickTop = e.clientY - posInfo.value.y;
-    };
-
-    const mouseupEvent = (e: any) => {
-      ctx.emit("update:move", false);
-    };
-
     return {
-      posInfo,
-      mouseupEvent,
-      mousedownEvent,
-      G_CurrNode,
+      SSections,
+      bgColor,
     };
   },
 });
 </script>
 
 <style scoped>
-.node-container {
+.default {
   position: absolute;
   width: 50px;
   height: 50px;
-  background-color: blueviolet;
   z-index: 1001;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: 50%;
 }
 </style>

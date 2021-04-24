@@ -7,9 +7,10 @@
   >
     <template v-slot:title>Details</template>
     <template v-slot:content>
-      <div class="data-title">
+      <div class="">
+        <div class="data-title">
         <span class="title">{{
-          G_Title.length > 0 ? G_Title : "Select Api"
+          STitle.length > 0 ? STitle : "Select Api"
         }}</span>
         <i @click="changeInfo" class="iconfont icon-trash"></i>
       </div>
@@ -64,6 +65,7 @@
         </table>
       </div>
       <div @click="saveNodeInfo" class="save_btn">Save</div>
+      </div>
     </template>
   </DrawerComponent>
 </template>
@@ -75,14 +77,12 @@ import Switch from "./../../components/Switch.vue";
 import Select from "./../../components/Select.vue";
 
 import {
-  tree,
-  G_CurrNode,
   SInputVals,
   SVerifyVals,
   G_DrawerState,
-  G_SaveNodeInfo,
-  G_Title,
-  SReference,
+  SSaveNode,
+  SRootNode,
+  STitle,
 } from "./store";
 import { saveSections } from "./../../libs/storage";
 
@@ -103,8 +103,8 @@ export default defineComponent({
 
     // 保存节点信息
     const saveNodeInfo = () => {
-      G_SaveNodeInfo(1, null);
-      saveSections(JSON.stringify(tree.value));
+      SSaveNode(null);
+      saveSections(JSON.stringify(SRootNode));
     };
 
     const addVerifyValue = () => {
@@ -127,12 +127,10 @@ export default defineComponent({
       delVerifyValue,
       saveNodeInfo,
       changeInfo,
-      G_CurrNode,
       SInputVals,
       SVerifyVals,
       G_DrawerState,
-      G_Title,
-      SReference,
+      STitle,
     };
   },
 });

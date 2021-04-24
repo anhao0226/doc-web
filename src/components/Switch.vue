@@ -46,7 +46,6 @@ export default defineComponent({
   position: relative;
   width: 40px;
   height: 20px;
-  background-color: blueviolet;
   border-radius: 10px;
   display: inline-block;
   background-color: rgb(255, 73, 73);

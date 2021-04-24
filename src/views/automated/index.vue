@@ -5,27 +5,26 @@
         <!-- 功能区 -->
         <div class="op-container">
           <ul class="op-menu">
+            <li><router-link :to="{ name: 'home' }">Home</router-link></li>
             <li @click="addRootNode">Root</li>
             <li @click="addChildNode">Child</li>
-            <li @click="addChildNode">Info</li>
             <li @click="delCurrNode">Del</li>
             <li @click="startRun">Run</li>
+            <li>
+              <span class="box-state success">success</span>
+              <span class="box-state error">error</span>
+            </li>
           </ul>
         </div>
         <!-- 节点渲染区域 -->
-        <div
-          v-for="(item, index) in sections"
+        <Node
+          v-for="(_, index) in SSections"
           :key="index"
-          v-show="!item.state.delete"
-          @mousedown="mousedownEvent($event, item)"
-          @mouseup="mouseupEvent($event)"
-          :style="{
-            left: `${item.pos.sx}px`,
-            top: `${item.pos.sy}px`,
-            'background-color': item.state.fetch ? '#67C23A' : '#693f95'
-          }"
-          :class="boxStyle"
-        ></div>
+          :seek="index"
+          @mousedown="nodeMousedownEvent($event, index)"
+          @mouseup="nodeMouseupEvent"
+          @mouseover="showGBox($event, index)"
+        ></Node>
         <!-- canvas -->
         <canvas id="canvas" width="2000" height="2000"></canvas>
       </div>
@@ -41,18 +40,19 @@
 import { computed, defineComponent, onMounted, ref } from "vue";
 import Menu from "./menu.vue";
 import Details from "./details.vue";
+import Node from "./node.vue";
+
+import { GBoxStateInfo } from "./../../store/index";
 
 import {
-  Section,
   clearRect,
-  sections,
-  GlobalState,
+  SSections,
+  SSeek,
+  SNodeToggle,
+  SNewRootNode,
+  SNewChildNode,
+  CanvasInit,
   Run,
-  G_CurrNode,
-  G_ToggleCurrNode,
-  G_AddChildNode,
-  G_AddRootNode,
-  G_Title,
 } from "./store";
 
 export default defineComponent({
@@ -60,85 +60,87 @@ export default defineComponent({
   components: {
     Menu,
     Details,
+    Node,
   },
   setup() {
-    let isDown = false;
     let clickLeft = 0;
     let clickTop = 0;
     let canvas: any = {};
     let ctx: any = {};
     const currClickIdx = ref<number>(0);
+    let timer: any = null;
+
+    let isMove = false;
+    let secSeek = ref<number>(-1);
+
+    const nodeMousedownEvent = (e: any, seek: number) => {
+      SSeek.value = seek;
+      secSeek.value = seek;
+      isMove = true;
+      clickLeft = e.clientX - SSections.value[seek].pos.sx;
+      clickTop = e.clientY - SSections.value[seek].pos.sy;
+      SNodeToggle(seek);
+      SSections.value[seek].state.select = true;
+    };
+
+    const nodeMouseupEvent = () => {
+      isMove = false;
+    };
+
+    const showGBox = (e: any, seek: number) => {
+      clearTimeout(timer);
+      GBoxStateInfo.value.x = e.clientX - e.offsetX + 50;
+      GBoxStateInfo.value.y = e.clientY - e.offsetY;
+      GBoxStateInfo.value.data = SSections.value[seek].request.title;
+      if (!GBoxStateInfo.value.state) {
+        GBoxStateInfo.value.state = false;
+        timer = setTimeout(() => {
+          GBoxStateInfo.value.state = true;
+        }, 300);
+      }
+    };
 
     onMounted(() => {
       canvas = document.getElementById("canvas");
       ctx = (canvas as any).getContext("2d");
-      GlobalState.updateCanvas(canvas, ctx);
-
+      CanvasInit(ctx, canvas);
+      clearRect();
       window.addEventListener("mousemove", (e: any) => {
-        if (isDown) {
-          G_CurrNode.pos.sx = e.clientX - clickLeft;
-          G_CurrNode.pos.sy = e.clientY - clickTop;
-          clearRect(); // 重绘路径
+        if (isMove) {
+          SSections.value[SSeek.value].pos.sx = e.clientX - clickLeft;
+          SSections.value[SSeek.value].pos.sy = e.clientY - clickTop;
+          clearRect();
         }
       });
     });
 
-    const mousedownEvent = (e: any, s: Section) => {
-      console.log(s);
-      GlobalState.currSection.state.select = false;
-      s.state.select = true;
-      // 当前节点
-      const curr = G_ToggleCurrNode(s);
-      G_Title.value = s.request.title;
-      isDown = true;
-      clickLeft = e.clientX - s.pos.sx;
-      clickTop = e.clientY - s.pos.sy;
-      clearRect();
-    };
-
-    const boxStyle = computed(() => {
-      const styles = ["box"];
-      const state = G_CurrNode.state;
-      if (state.select) {
-        styles.push("box-select");
-      }
-      return styles;
-    });
-
-    // 鼠标点击事件
-    const mouseupEvent = (e: any) => {
-      isDown = false;
-    };
-
     // 添加根节点
     const addRootNode = () => {
-      G_AddRootNode();
+      SNewRootNode();
     };
     // 添加子节点
     const addChildNode = () => {
-      G_AddChildNode();
+      SNewChildNode(secSeek.value);
     };
 
     const delCurrNode = () => {
-      G_CurrNode.state.delete = true;
       clearRect();
     };
 
     const startRun = () => {
-      Run(G_CurrNode);
+      Run(SSections.value[secSeek.value]);
     };
 
     return {
-      mousedownEvent,
-      mouseupEvent,
       addRootNode,
       addChildNode,
-      sections,
-      GlobalState,
       startRun,
       delCurrNode,
-      boxStyle,
       currClickIdx,
+      showGBox,
+      SSections,
+      nodeMousedownEvent,
+      nodeMouseupEvent,
     };
   },
 });
@@ -176,7 +178,6 @@ export default defineComponent({
   position: fixed;
   width: 100%;
   height: 50px;
-  background-color: red;
   top: 0;
   left: 0;
   z-index: 1002;
@@ -203,10 +204,32 @@ export default defineComponent({
   background-color: rgba(0, 0, 0, 0.1);
 }
 
+.op-menu .box-state {
+  padding: 0 10px;
+}
+
+.op-menu .box-state::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background-color: #6495ed;
+  display: inline-block;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+/*  */
+.op-menu .success::before {
+  background-color: #67c23a;
+}
+/*  */
+.op-menu .error::before {
+  background-color: #f56c6c;
+}
+
 .box {
   width: 50px;
   height: 50px;
-  background-color: #693f95;
+  background-color: #6495ed;
   position: absolute;
   cursor: pointer;
   z-index: 1001;
@@ -215,9 +238,6 @@ export default defineComponent({
 
 .box-select {
   background-color: #409eff;
-}
-
-.box-default {
 }
 
 .box-success {
@@ -229,7 +249,6 @@ export default defineComponent({
 }
 
 #canvas {
-  /* background-color: #98aaa7; */
   position: absolute;
   left: 0;
   top: 0;

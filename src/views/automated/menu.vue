@@ -25,12 +25,10 @@ import { defineComponent, reactive } from "vue";
 import DrawerComponent from "./../../components/Drawer.vue";
 import { comments } from "./../comm";
 import {
-  GlobalState,
-  G_CurrNode,
   G_DrawerState,
   SInputVals,
-  G_SaveNodeInfo,
-  G_Title,
+  SSaveNode,
+  STitle
 } from "./store";
 export default defineComponent({
   components: {
@@ -45,9 +43,9 @@ export default defineComponent({
         const method = c.Method[0].trim();
         const header = c.Header[0].trim();
         const title = c.Title[0].trim();
-        G_Title.value = title;
+        STitle.value = title;
         // 保存节点信息
-        G_SaveNodeInfo(0, {
+        SSaveNode({
           url: url,
           method: method,
           header: header,
@@ -55,13 +53,12 @@ export default defineComponent({
         });
         // 处理input信息
         SInputVals.value = [];
-
         params.forEach((ele: any) => {
           SInputVals.value.push({
             value: "",
             auto: false,
             key: (ele[0] as string).trim(),
-            type: 'custom',
+            type: "custom",
             detail: "",
           });
         });
@@ -71,7 +68,6 @@ export default defineComponent({
     return {
       comments,
       selectItem,
-      GlobalState,
       G_DrawerState,
     };
   },
