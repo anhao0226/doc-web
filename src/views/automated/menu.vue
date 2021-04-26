@@ -34,8 +34,6 @@ import { comments } from "./../comm";
 import {
   G_DrawerState,
   SInputVals,
-  SSaveNode,
-  STitle,
   SBaseInfo,
 } from "./store";
 export default defineComponent({

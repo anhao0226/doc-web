@@ -21,6 +21,10 @@ export interface Config {
 export function saveSections(v: any) {
     setItem('3', v)
 }
+//
+export function saveNode(k: string, v: any) {
+    setItem(k, v);
+}
 
 // 0 dataAddrs
 // 1 testAddrs

@@ -84,8 +84,6 @@ import {
   SVerifyVals,
   G_DrawerState,
   SSaveNode,
-  SRootNode,
-  STitle,
   SBaseInfo,
 } from "./store";
 import { saveSections } from "./../../libs/storage";
@@ -134,7 +132,6 @@ export default defineComponent({
       SBaseInfo,
       SVerifyVals,
       G_DrawerState,
-      STitle,
     };
   },
 });

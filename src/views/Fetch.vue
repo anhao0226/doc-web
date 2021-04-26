@@ -43,6 +43,9 @@ import InputComponent from "./Input.vue";
 import { AxiosGeneral } from "./../libs/http";
 import { Method } from "node_modules/axios";
 import DrawerComponent from "./../components/Drawer.vue";
+import { Section } from "./automated/type";
+import { SNodeCountAdd } from "./automated/store";
+import { saveNode } from './../libs/storage'
 
 export default defineComponent({
   components: {
@@ -64,6 +67,9 @@ export default defineComponent({
       // 处理参数
       const method = comments.value[currClickIdx.value].Method[0].trim();
       const url = comments.value[currClickIdx.value].Url[0].trim();
+      const title = comments.value[currClickIdx.value].Title[0].trim();
+      const header = comments.value[currClickIdx.value].Header[0].trim();
+
       let params: any = {};
       comments.value[currClickIdx.value].Params.forEach((ele, index) => {
         const label = (ele[0] as string).trim();
@@ -78,6 +84,28 @@ export default defineComponent({
         success: (data: any) => {
           console.log(data);
           result.value = data;
+          // 将数据包裹成Section
+          const sec = new Section(100, 100);
+          sec.id = SNodeCountAdd();
+          // 请求参数
+          sec.request.url = url;
+          sec.request.method = method;
+          sec.request.title = title;
+          sec.request.header = header;
+          // 处理input
+          Object.keys(params).forEach((ele) => {
+            sec.input.push({
+              value: "",
+              key: ele,
+              auto: false,
+              type: "custom",
+              detail: params[ele],
+            });
+          });
+          // 处理结果
+          sec.result = { state: true, data: data };
+
+          saveNode(`sec${sec.id.toString()}`, JSON.stringify(sec));
         },
         error: (err: any) => {
           console.log(err);

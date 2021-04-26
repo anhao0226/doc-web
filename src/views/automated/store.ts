@@ -2,34 +2,12 @@ import { ref, reactive, Ref } from 'vue';
 import { findValue, toString, getMobile, getUUID } from './../../libs/utils'
 import { loadItem, saveSections } from './../../libs/storage'
 import { AxiosGeneral } from './../../libs/http'
-import { InputValue, BaseRequestInfo, Pos, State, VerifyValue, BaseInfo } from './type';
+import { InputValue, VerifyValue, BaseInfo, Section } from './type';
 import { Line } from './draw'
 import { GBoxStateInfo } from '@/store';
 
 // 加载配置
 const config = loadItem();
-
-// 节点数据
-export class Section {
-    id = -1;
-    input: InputValue<string>[] = [];
-    output: any = {};
-    verify: any = [];
-    request: BaseRequestInfo = { url: '', method: '', header: '', title: '' };
-    result: any = {};
-    reference: string[] = [];
-    pos: Pos = { sx: 0, sy: 0 }
-    children: Section[] = [];
-    // 0 default] 1 select]
-    state: State = { default: 0, select: false, active: false, fetch: false, delete: false };
-
-
-    constructor(sx: number, sy: number) {
-        this.pos.sx = sx;
-        this.pos.sy = sy;
-    }
-}
-
 
 // cnavas
 export const CanvasState = { ctx: null, canvas: null }
@@ -39,17 +17,6 @@ export const CanvasState = { ctx: null, canvas: null }
 export const G_DrawerState = ref<{ menu: boolean, info: boolean }>({ menu: false, info: false })
 // 当前节点(保存节点最大值)
 export let SNodeCount = 0;
-// 保存根节点(Tree)
-
-// 标题
-export const STitle = ref<string>("");
-// 存储节点
-export const SSections = ref<Section[]>([]);
-// SSections下标
-export const SSeek = ref<number>(-1);
-
-
-
 const SRootNode = ref<Section>(new Section(100, 100));
 // 保存当前节点
 let currNode: Section = null as any;
@@ -61,6 +28,11 @@ const SBaseInfo = ref<BaseInfo>({ title: "", url: "", header: "", method: "" })
 const SInputVals = ref<InputValue<string>[]>([])
 // 保存验证值 (用于渲染)
 const SVerifyVals = ref<VerifyValue<string>[]>([]);
+
+//
+function SNodeCountAdd():number{
+    return ++SNodeCount
+}
 // 切换节点
 function SNodeToggle(s: Section) {
     currNode = s;
@@ -96,7 +68,7 @@ function SNewChildNode() {
     clearRect();
 }
 // 创建根节点
-function SNewRootNode(){
+function SNewRootNode() {
     const node = new Section(100, 100);
     node.id = ++SNodeCount;
     SRootNode.value.children.push(node);
@@ -110,15 +82,15 @@ function SSaveNode() {
     saveSections(JSON.stringify(SRootNode.value));
 }
 // 连接状态
-function LinkNode(to: {x: number, y: number}){
+function LinkNode(to: { x: number, y: number }) {
     clearRect();
     const cx = currNode.pos.sx + 25;
     const cy = currNode.pos.sy + 25;
-    const line = new Line(CanvasState.ctx,cx, cy, to.x, to.y);
+    const line = new Line(CanvasState.ctx, cx, cy, to.x, to.y);
     line.renderAngle();
 }
 //
-function Linked(item:Section){
+function Linked(item: Section) {
     item.children.push(currNode);
     SRootNode.value.children = SRootNode.value.children.filter(s => {
         return s.id != currNode.id;
@@ -139,6 +111,7 @@ export {
     SNewRootNode,
     SNewChildNode,
     SSaveNode,
+    SNodeCountAdd,
 }
 
 

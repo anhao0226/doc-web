@@ -46,12 +46,12 @@ import Node from "./node.vue";
 
 import { Line } from "./draw";
 
+import { Section } from './type'
+
 import { GBoxStateInfo } from "./../../store/index";
 
 import {
   clearRect,
-  SSections,
-  SSeek,
   SNodeToggle,
   SNewRootNode,
   SNewChildNode,
@@ -60,7 +60,6 @@ import {
   Run,
   SNodeList,
   SNodeMove,
-  Section,
   SBaseInfo,
   LinkNode,
   Linked,
@@ -96,6 +95,7 @@ export default defineComponent({
       if(state == 0) {
         Linked(item);
         state = -1
+        clearRect();
         return
       }
       isMove = true;
@@ -164,7 +164,7 @@ export default defineComponent({
     };
 
     const startRun = () => {
-      Run(SSections.value[secSeek.value]);
+      Run(null as any);
     };
 
     return {
@@ -174,8 +174,6 @@ export default defineComponent({
       delCurrNode,
       currClickIdx,
       showGBox,
-      SSections,
-      SSeek,
       nodeMousedownEvent,
       nodeMouseupEvent,
       SNodeList,

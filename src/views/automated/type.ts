@@ -56,10 +56,35 @@ export interface State {
 
 
 /*
+    BaseInfo
 */
 export interface BaseInfo {
     title: string
     method: string
     header: string
     url: string
+}
+
+/*
+    Section
+*/
+
+export class Section {
+    id = -1;
+    input: InputValue<string>[] = [];
+    output: any = {};
+    verify: any = [];
+    request: BaseRequestInfo = { url: '', method: '', header: '', title: '' };
+    result: any = {};
+    reference: string[] = [];
+    pos: Pos = { sx: 0, sy: 0 }
+    children: Section[] = [];
+    // 0 default] 1 select]
+    state: State = { default: 0, select: false, active: false, fetch: false, delete: false };
+
+
+    constructor(sx: number, sy: number) {
+        this.pos.sx = sx;
+        this.pos.sy = sy;
+    }
 }
