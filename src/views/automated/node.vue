@@ -2,33 +2,30 @@
   <div
     class="default"
     :style="{
-      top: `${SSections[seek].pos.sy}px`,
-      left: `${SSections[seek].pos.sx}px`,
+      top: `${value.pos.sy}px`,
+      left: `${value.pos.sx}px`,
       'background-color': bgColor,
     }"
-  ></div>
+  >
+    <!-- <div
+      class="mask"
+      :style="{ 'background-color': state.select ? 'rgba(0, 0, 0, 0.4)' : '' }"
+    > -->
+      {{ value.id }}
+    <!-- </div> -->
+  </div>
 </template>
 
 <script lang='ts'>
 import { defineComponent, ref, watch } from "vue";
-import { SSections } from "./store";
 
 export default defineComponent({
-  props: ["seek"],
+  props: ["value"],
   setup(props: any, ctx: any) {
-    // 0 default] 1 fetch] 2]
     const bgColor = ref<string>("#6495ed");
-
-    watch(SSections.value[props.seek], () => {
-      if (SSections.value[props.seek].state.fetch) {
-        bgColor.value = "#67c23a";
-      } else {
-        bgColor.value = "#f56c6c";
-      }
-    });
-
+    const mask = ref<boolean>(false);
     return {
-      SSections,
+      mask,
       bgColor,
     };
   },
@@ -43,5 +40,16 @@ export default defineComponent({
   z-index: 1001;
   cursor: pointer;
   border-radius: 50%;
+  text-align: center;
+  line-height: 50px;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #fff;
+  overflow: hidden;
+}
+.mask {
+  width: 100%;
+  height: 100%;
+  transition: 0.3s;
 }
 </style>

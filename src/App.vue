@@ -103,24 +103,7 @@ export default defineComponent({
   height: 100%;
   position: relative;
 }
-.canvas-circle {
-  width: 50px;
-  height: 50px;
-  background-color: salmon;
-  border-radius: 50%;
-  position: absolute;
-}
-#mycanvas {
-  border: 1px solid rgb(199, 198, 198);
-}
-.sec-start {
-  position: absolute;
-  right: 0;
-  top: 0;
-  width: 100px;
-  height: 30px;
-  background-color: cadetblue;
-}
+
 * {
   margin: 0;
   padding: 0;

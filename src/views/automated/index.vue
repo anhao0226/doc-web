@@ -6,8 +6,10 @@
         <div class="op-container">
           <ul class="op-menu">
             <li><router-link :to="{ name: 'home' }">Home</router-link></li>
+            <li @click="addRootNode">Reset</li>
             <li @click="addRootNode">Root</li>
             <li @click="addChildNode">Child</li>
+            <li @click="intoLinekState">Link</li>
             <li @click="delCurrNode">Del</li>
             <li @click="startRun">Run</li>
             <li>
@@ -18,12 +20,12 @@
         </div>
         <!-- 节点渲染区域 -->
         <Node
-          v-for="(_, index) in SSections"
+          v-for="(item, index) in SNodeList"
           :key="index"
-          :seek="index"
-          @mousedown="nodeMousedownEvent($event, index)"
+          :value="item"
+          @mousedown="nodeMousedownEvent($event, item)"
           @mouseup="nodeMouseupEvent"
-          @mouseover="showGBox($event, index)"
+          @mouseover="showGBox($event, item)"
         ></Node>
         <!-- canvas -->
         <canvas id="canvas" width="2000" height="2000"></canvas>
@@ -37,10 +39,12 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, onMounted, ref } from "vue";
+import { defineComponent, onMounted, ref } from "vue";
 import Menu from "./menu.vue";
 import Details from "./details.vue";
 import Node from "./node.vue";
+
+import { Line } from "./draw";
 
 import { GBoxStateInfo } from "./../../store/index";
 
@@ -52,7 +56,14 @@ import {
   SNewRootNode,
   SNewChildNode,
   CanvasInit,
+  SRemoveNode,
   Run,
+  SNodeList,
+  SNodeMove,
+  Section,
+  SBaseInfo,
+  LinkNode,
+  Linked,
 } from "./store";
 
 export default defineComponent({
@@ -73,25 +84,40 @@ export default defineComponent({
     let isMove = false;
     let secSeek = ref<number>(-1);
 
-    const nodeMousedownEvent = (e: any, seek: number) => {
-      SSeek.value = seek;
-      secSeek.value = seek;
+    // 操作状态 0 link ]
+    let state = -1;
+
+    // 状态切换
+    const changeOpState = () => {
+      console.log("test");
+    };
+
+    const nodeMousedownEvent = (e: any, item: Section) => {
+      if(state == 0) {
+        Linked(item);
+        state = -1
+        return
+      }
       isMove = true;
-      clickLeft = e.clientX - SSections.value[seek].pos.sx;
-      clickTop = e.clientY - SSections.value[seek].pos.sy;
-      SNodeToggle(seek);
-      SSections.value[seek].state.select = true;
+      clickLeft = e.clientX - item.pos.sx;
+      clickTop = e.clientY - item.pos.sy;
+      SNodeToggle(item);
+    };
+
+    // node to node
+    const intoLinekState = () => {
+      state = 0;
     };
 
     const nodeMouseupEvent = () => {
       isMove = false;
     };
 
-    const showGBox = (e: any, seek: number) => {
+    const showGBox = (e: any, item: Section) => {
       clearTimeout(timer);
       GBoxStateInfo.value.x = e.clientX - e.offsetX + 50;
       GBoxStateInfo.value.y = e.clientY - e.offsetY;
-      GBoxStateInfo.value.data = SSections.value[seek].request.title;
+      GBoxStateInfo.value.data = item.request.title;
       if (!GBoxStateInfo.value.state) {
         GBoxStateInfo.value.state = false;
         timer = setTimeout(() => {
@@ -101,14 +127,23 @@ export default defineComponent({
     };
 
     onMounted(() => {
+      // 初始化证书
       canvas = document.getElementById("canvas");
       ctx = (canvas as any).getContext("2d");
       CanvasInit(ctx, canvas);
       clearRect();
+
       window.addEventListener("mousemove", (e: any) => {
+        // 连接状态
+        if (state == 0) {
+          LinkNode({ x: e.clientX, y: e.clientY });
+          return;
+        }
+        // 移动状态
         if (isMove) {
-          SSections.value[SSeek.value].pos.sx = e.clientX - clickLeft;
-          SSections.value[SSeek.value].pos.sy = e.clientY - clickTop;
+          SNodeMove({ x: e.clientX - clickLeft, y: e.clientY - clickTop });
+          GBoxStateInfo.value.x = e.clientX - e.offsetX + 50;
+          GBoxStateInfo.value.y = e.clientY - e.offsetY;
           clearRect();
         }
       });
@@ -120,10 +155,11 @@ export default defineComponent({
     };
     // 添加子节点
     const addChildNode = () => {
-      SNewChildNode(secSeek.value);
+      SNewChildNode();
     };
 
     const delCurrNode = () => {
+      SRemoveNode(secSeek.value);
       clearRect();
     };
 
@@ -139,8 +175,11 @@ export default defineComponent({
       currClickIdx,
       showGBox,
       SSections,
+      SSeek,
       nodeMousedownEvent,
       nodeMouseupEvent,
+      SNodeList,
+      intoLinekState,
     };
   },
 });

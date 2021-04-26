@@ -7,11 +7,18 @@
   >
     <template v-slot:title>Menu</template>
     <template v-slot:content>
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="search"
+          @input="searchValue($event.target.value)"
+        />
+      </div>
       <ul class="select_menu">
         <li
-          v-for="(item, index) in comments"
+          v-for="(item, index) in searchReault"
           :key="index"
-          @click="selectItem(index)"
+          @click="selectItem(item)"
         >
           {{ item.Title[0] }}
         </li>
@@ -21,51 +28,53 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent, reactive } from "vue";
+import { defineComponent, onMounted, ref } from "vue";
 import DrawerComponent from "./../../components/Drawer.vue";
 import { comments } from "./../comm";
 import {
   G_DrawerState,
   SInputVals,
   SSaveNode,
-  STitle
+  STitle,
+  SBaseInfo,
 } from "./store";
 export default defineComponent({
   components: {
     DrawerComponent,
   },
   setup() {
-    const selectItem = (index: number) => {
-      if (index < comments.value.length) {
-        const c = comments.value[index];
-        const params = c.Params;
-        const url = c.Url[0].trim();
-        const method = c.Method[0].trim();
-        const header = c.Header[0].trim();
-        const title = c.Title[0].trim();
-        STitle.value = title;
-        // 保存节点信息
-        SSaveNode({
-          url: url,
-          method: method,
-          header: header,
-          title: title,
+    const selectItem = (item: any) => {
+      const params = item.Params;
+      // 更新信息
+      SBaseInfo.value.title = item.Title[0].trim();
+      SBaseInfo.value.method = item.Method[0].trim();
+      SBaseInfo.value.header = item.Header[0].trim();
+      SBaseInfo.value.url = item.Url[0].trim();
+      // 处理input信息
+      SInputVals.value = [];
+      console.log(params);
+      params.forEach((ele: any) => {
+        SInputVals.value.push({
+          value: "",
+          auto: false,
+          key: (ele[0] as string).trim(),
+          type: "custom",
+          detail: "",
         });
-        // 处理input信息
-        SInputVals.value = [];
-        params.forEach((ele: any) => {
-          SInputVals.value.push({
-            value: "",
-            auto: false,
-            key: (ele[0] as string).trim(),
-            type: "custom",
-            detail: "",
-          });
-        });
-      }
+      });
+    };
+
+    // 保存搜索数据
+    const searchReault = ref<any>(comments.value);
+    const searchValue = (text: string) => {
+      searchReault.value = comments.value.filter((value) => {
+        return value.Title[0].includes(text);
+      });
     };
 
     return {
+      searchReault,
+      searchValue,
       comments,
       selectItem,
       G_DrawerState,
@@ -76,9 +85,24 @@ export default defineComponent({
 
 
 <style scoped>
+.search-box {
+  /* background-color: royalblue; */
+  text-align: center;
+}
+
+.search-box input {
+  height: 30px;
+  width: 96%;
+  background-color: rgba(0, 0, 0, 0.04);
+  outline: none;
+  border-style: none;
+  border-radius: 3px;
+  text-indent: 10px;
+}
+
 .select_menu {
   width: 100%;
-  height: 100%;
+  height: calc(100% - 30px);
   overflow-y: scroll;
 }
 

@@ -1,9 +1,9 @@
 <template>
-  <div class="wrapper">
+  <div id="home">
    <a class="cmt-item" v-for="(item, index) in comments" :key="index"
     @click="ClickEvent(index)" :name="`${item.Title[0]}`">
       <div class="op0" style="background-color:#409EFF">
-        <span>{{index}} {{item.Title[0]}}</span>
+        <span>{{item.Title[0]}}</span>
       </div>
      <div class="op1">
       <p>
@@ -34,12 +34,12 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent, onMounted, ref } from "vue";
-import { FetchComments, comments, currClickIdx, MainMenuChange } from "./comm";
-import SettingComponent from './Setting.vue'
-import MenuComponent from './Menu.vue'
-import SearchComponent from './Search.vue'
-import FetchComponent from './Fetch.vue'
+import { defineComponent, onMounted, onUnmounted, ref } from "vue";
+import { comments, currClickIdx, MainMenuChange, MainMenuInfo } from "./comm";
+import SettingComponent from "./Setting.vue";
+import MenuComponent from "./Menu.vue";
+import SearchComponent from "./Search.vue";
+import FetchComponent from "./Fetch.vue";
 
 export default defineComponent({
   components: {
@@ -49,7 +49,24 @@ export default defineComponent({
     FetchComponent,
   },
   setup() {
-   
+    let prev = 0;
+    let timer: any = null;
+
+    onMounted(() => {
+      // window.addEventListener("scroll", () => {
+      //   clearTimeout(timer);
+      //   MainMenuInfo.value[0].display = false;
+      //   prev = document.documentElement.scrollTop || document.body.scrollTop;
+      //   timer = setTimeout(() => {
+      //     let scrollHeight =
+      //       document.documentElement.scrollTop || document.body.scrollTop;
+      //     if (scrollHeight == prev) {
+      //       MainMenuInfo.value[0].display = true;
+      //     }dd
+      //   }, 100);
+      // });
+    });
+
     const ClickEvent = (idx: number) => {
       currClickIdx.value = idx;
       MainMenuChange(4, 10000);
@@ -75,7 +92,7 @@ export default defineComponent({
   height: 100%;
   margin: 14px 0;
 }
-.wrapper {
+.home {
   /* background-color: tomato; */
   width: 100%;
   height: 100%;

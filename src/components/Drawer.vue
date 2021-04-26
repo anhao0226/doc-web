@@ -108,6 +108,6 @@ export default defineComponent({
 .content {
   width: 100%;
   height: calc(100% - 60px);
-  overflow-y: scroll;
+  position: relative;
 }
 </style>

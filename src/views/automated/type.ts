@@ -48,8 +48,18 @@ export interface Pos {
 export interface State {
     seek?: number;
     select: boolean;
-    default?: boolean;
     active: boolean;
     fetch: boolean;
     delete: boolean;
+    default: number;
+}
+
+
+/*
+*/
+export interface BaseInfo {
+    title: string
+    method: string
+    header: string
+    url: string
 }

@@ -9,62 +9,65 @@
     <template v-slot:content>
       <div class="">
         <div class="data-title">
-        <span class="title">{{
-          STitle.length > 0 ? STitle : "Select Api"
-        }}</span>
-        <i @click="changeInfo" class="iconfont icon-trash"></i>
-      </div>
-      <div class="data-input-box">
-        <p class="label">
-          <span>Input</span>
-        </p>
-        <table class="gridtable">
-          <tr>
-            <th>key</th>
-            <th>value</th>
-            <th>auto</th>
-            <th>type</th>
-          </tr>
-          <!-- 数据处理和绑定 -->
-          <tr v-for="(item, index) in SInputVals" :key="index">
-            <!-- key  -->
-            <td>{{ item.key }}</td>
-            <!-- data -->
-            <td><input class="input" type="text" v-model="item.detail" /></td>
-            <!-- auto -->
-            <td><Switch v-model="item.auto"></Switch></td>
-            <!-- type -->
-            <td>
-              <Select
-                v-model="item.type"
-                :list="['mobile', 'uuid', 'f-input', 'f-result', 'custom']"
-              ></Select>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div class="data-input-box">
-        <p class="label">
-          <span>Verify</span>
-          <span style="padding: 0 50px" @click="addVerifyValue">new</span>
-        </p>
-        <table class="gridtable">
-          <tr>
-            <th>key</th>
-            <th>value</th>
-            <th>op</th>
-            <th>type</th>
-          </tr>
-          <tr v-for="(item, index) in SVerifyVals" :key="index">
-            <td><input class="input" type="text" v-model="item.key" /></td>
-            <td><input class="input" type="text" v-model="item.value" /></td>
-            <td>
-              <i class="iconfont icon-trash" @click="delVerifyValue(index)"></i>
-            </td>
-          </tr>
-        </table>
-      </div>
-      <div @click="saveNodeInfo" class="save_btn">Save</div>
+          <span class="title">{{
+            SBaseInfo.title.length > 0 ? SBaseInfo.title : "Select Api"
+          }}</span>
+          <i @click="changeInfo" class="iconfont icon-trash"></i>
+        </div>
+        <div class="data-input-box">
+          <p class="label">
+            <span>Input</span>
+          </p>
+          <table class="gridtable">
+            <tr>
+              <th>key</th>
+              <th>value</th>
+              <th>auto</th>
+              <th>type</th>
+            </tr>
+            <!-- 数据处理和绑定 -->
+            <tr v-for="(item, index) in SInputVals" :key="index">
+              <!-- key  -->
+              <td>{{ item.key }}</td>
+              <!-- data -->
+              <td><input class="input" type="text" v-model="item.detail" /></td>
+              <!-- auto -->
+              <td><Switch v-model="item.auto"></Switch></td>
+              <!-- type -->
+              <td>
+                <Select
+                  v-model="item.type"
+                  :list="['mobile', 'uuid', 'f-input', 'f-result', 'custom']"
+                ></Select>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="data-input-box">
+          <p class="label">
+            <span>Verify</span>
+            <span style="padding: 0 50px" @click="addVerifyValue">new</span>
+          </p>
+          <table class="gridtable">
+            <tr>
+              <th>key</th>
+              <th>value</th>
+              <th>op</th>
+              <th>type</th>
+            </tr>
+            <tr v-for="(item, index) in SVerifyVals" :key="index">
+              <td><input class="input" type="text" v-model="item.key" /></td>
+              <td><input class="input" type="text" v-model="item.value" /></td>
+              <td>
+                <i
+                  class="iconfont icon-trash"
+                  @click="delVerifyValue(index)"
+                ></i>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div @click="saveNodeInfo" class="save_btn">Save</div>
       </div>
     </template>
   </DrawerComponent>
@@ -83,6 +86,7 @@ import {
   SSaveNode,
   SRootNode,
   STitle,
+  SBaseInfo,
 } from "./store";
 import { saveSections } from "./../../libs/storage";
 
@@ -103,8 +107,7 @@ export default defineComponent({
 
     // 保存节点信息
     const saveNodeInfo = () => {
-      SSaveNode(null);
-      saveSections(JSON.stringify(SRootNode));
+      SSaveNode();
     };
 
     const addVerifyValue = () => {
@@ -128,6 +131,7 @@ export default defineComponent({
       saveNodeInfo,
       changeInfo,
       SInputVals,
+      SBaseInfo,
       SVerifyVals,
       G_DrawerState,
       STitle,

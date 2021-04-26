@@ -6,7 +6,7 @@ import { InitAutoTest } from './automated/store'
 // 加载配置
 const config = ref<Config>(loadItem());
 
-
+console.log(config.value.sections);
 InitAutoTest(config.value.sections);
 // 记录每一层的个数
 export const depthSecCount = <number[]>[];

@@ -11,10 +11,10 @@ export class Line {
     sy = 0;
     ex = 0;
     ey = 0;
-    headlen = 20;
+    headlen = 12;
     theta = 20;
-    width = 3;
-    color = "#fff";
+    width = 2;
+    color = "#E4E7ED";
     ctx: any = null;
 
     constructor(ctx: any, sx: number, sy: number, ex: number, ey: number) {
