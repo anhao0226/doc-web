@@ -166,9 +166,11 @@ export function repaint(s: Section, add: { x: number, y: number }) {
         if (!s.children[i].state.delete) {
             const cn = s.children[i];
             const line = new Line(CanvasState.ctx, fx + 25 + add.x, fy + 25 + add.y, cn.pos.sx + 25 + add.x, cn.pos.sy + 25 + add.y);
+            let radius = 25;
             const an = Math.atan2(line.sy - line.ey, line.sx - line.ex) * Math.PI / 180;
-            line.ex += Math.sin(an) * 25;
-            line.ey -= Math.cos(an) * 25;
+            if (line.sy > line.ey) { radius = -radius }
+            line.ex += Math.sin(an) * radius;
+            line.ey -= Math.cos(an) * radius;
             line.renderAngle();
             repaint(cn, add);
         }

@@ -3,7 +3,7 @@
 class CanvasState {
     ctx = null;
 
-    
+
 }
 
 export class Line {
@@ -34,15 +34,16 @@ export class Line {
             topY = this.headlen * Math.sin(angle1),
             botX = this.headlen * Math.cos(angle2),
             botY = this.headlen * Math.sin(angle2);
+        console.log(angle);
+        // 判断
+
 
         this.ctx.save();
         this.ctx.beginPath();
-        let arrowX = this.ex + topX;
-        let arrowY = this.ey + topY;
         this.ctx.moveTo(this.sx, this.sy);
         this.ctx.lineTo(this.ex, this.ey);
-        arrowX = this.ex - topX;
-        arrowY = this.ey - topY;
+        let arrowX = this.ex - topX;
+        let arrowY = this.ey - topY;
         this.ctx.moveTo(arrowX, arrowY);
         this.ctx.lineTo(this.ex, this.ey);
         arrowX = this.ex - botX;
@@ -53,7 +54,7 @@ export class Line {
         this.ctx.stroke();
         this.ctx.restore();
     }
- 
+
     render() {
         this.ctx.beginPath();
         this.ctx.moveTo(this.sx, this.sy);
@@ -64,7 +65,7 @@ export class Line {
         this.ctx.lineWidth = this.width;
         this.ctx.closePath();
     }
-    
+
     update(v: { color: string, width: number }) {
         this.color = v.color;
         this.width = v.width;

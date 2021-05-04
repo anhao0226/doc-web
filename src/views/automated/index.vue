@@ -111,6 +111,7 @@ export default defineComponent({
       containerEle = document.getElementsByClassName("container")[0] as any;
       window.addEventListener("mousemove", mousemoveEvent);
     });
+
     // mouseup
     const mouseupEvent = (e: any) => {
       switch (triggerEvent.value) {
@@ -124,6 +125,7 @@ export default defineComponent({
           break;
       }
     };
+
     // mousedown
     const mousedownEvent = (e: any, state: Trigger, s: any) => {
       triggerEvent.value =
@@ -146,6 +148,7 @@ export default defineComponent({
           break;
       }
     };
+
     // mousemove
     const mousemoveEvent = (e: any) => {
       switch (triggerEvent.value) {
@@ -158,8 +161,8 @@ export default defineComponent({
         case Trigger.NODE_LINK:
           SCanvasRepaint({ x: containerMove.x, y: containerMove.y });
           SDrawLink({
-            x: e.clientX + 25 + containerMove.x,
-            y: e.clientY + 25 + containerMove.y,
+            x: e.clientX + containerMove.x,
+            y: e.clientY + containerMove.y,
           });
           break;
         case Trigger.BG_MOVE:
