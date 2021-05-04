@@ -1,5 +1,19 @@
 # api-doc-web-bate
 
+## Data Struct
+```
+{
+    Title:["test"],
+    Url: ["api/v1/test"],
+    Header: ["application/x-www-form-urlencoded"],
+    Method: ["GET"],
+    Params: [
+        ["a","string"],
+        ["b","string"]
+    ],
+}
+```
+
 ## Project setup
 ```
 npm install

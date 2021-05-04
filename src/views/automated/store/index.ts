@@ -1,22 +1,19 @@
 import { ref, reactive, Ref } from 'vue';
-import { findValue, toString, getMobile, getUUID } from './../../libs/utils'
-import { loadItem, saveSections } from './../../libs/storage'
-import { AxiosGeneral } from './../../libs/http'
+import { findValue, toString, getMobile, getUUID } from '../../../libs/utils'
+import { loadItem, saveSections, removeItem } from '../../../libs/storage'
+import { AxiosGeneral } from '../../../libs/http'
 import { InputValue, VerifyValue, BaseInfo, Section } from './type';
 import { Line } from './draw'
-import { GBoxStateInfo } from '@/store';
 
 // 加载配置
 const config = loadItem();
-
-// cnavas
-export const CanvasState = { ctx: null, canvas: null }
-
-
+// cnavas 信息
+const CanvasState = { ctx: null, canvas: null }
 // 抽屉状态了
-export const G_DrawerState = ref<{ menu: boolean, info: boolean }>({ menu: false, info: false })
+const SDrawerState = ref({ menu: false, details: false })
 // 当前节点(保存节点最大值)
-export let SNodeCount = 0;
+let SNodeCount = 0;
+// 保存根节点
 const SRootNode = ref<Section>(new Section(100, 100));
 // 保存当前节点
 let currNode: Section = null as any;
@@ -28,26 +25,32 @@ const SBaseInfo = ref<BaseInfo>({ title: "", url: "", header: "", method: "" })
 const SInputVals = ref<InputValue<string>[]>([])
 // 保存验证值 (用于渲染)
 const SVerifyVals = ref<VerifyValue<string>[]>([]);
-
-//
-function SNodeCountAdd():number{
+// 保存请求值
+const SRequestResult = ref<any>({});
+// 节点值
+function SNodeCountAdd(): number {
     return ++SNodeCount
 }
 // 切换节点
 function SNodeToggle(s: Section) {
+    currNode.state.select = false;
+    s.state.select = true;
     currNode = s;
     SInputVals.value = s.input;
     SVerifyVals.value = s.verify;
     SBaseInfo.value.title = s.request.title;
-    G_DrawerState.value.info = true;
-    if (!currNode.state.active) {
-        G_DrawerState.value.menu = true;
-    }
+    SDrawerState.value.details = true;
+    SRequestResult.value = s.result;
 }
 // 节点移动
 function SNodeMove(pos: { x: number, y: number }) {
     currNode.pos.sx = pos.x;
     currNode.pos.sy = pos.y;
+}
+// 删除节点(当前节点的delete状态)
+function SRemoveNode() {
+    currNode.state.delete = true;
+    clearRect();
 }
 // 保存子节点
 function SNewChildNode() {
@@ -69,7 +72,8 @@ function SNewChildNode() {
 }
 // 创建根节点
 function SNewRootNode() {
-    const node = new Section(100, 100);
+    const { sx, sy } = currNode.pos;
+    const node = new Section(sx + 100, sy);
     node.id = ++SNodeCount;
     SRootNode.value.children.push(node);
     SNodeList.value.push(node);
@@ -79,6 +83,21 @@ function SSaveNode() {
     currNode.request = SBaseInfo.value;
     currNode.input = SInputVals.value;
     currNode.output = SVerifyVals.value;
+    saveNode();
+}
+// 
+function saveNode() {
+    const clearNode = (src: Section) => {
+        for (let i = 0; i < src.children.length; i++) {
+            if (src.children[i].state.delete) {
+                src.children.splice(i, 1);
+                continue;
+            }
+            clearNode(src.children[i]);
+        }
+    }
+    // 清除被删除的节点
+    clearNode(SRootNode.value);
     saveSections(JSON.stringify(SRootNode.value));
 }
 // 连接状态
@@ -89,7 +108,7 @@ function LinkNode(to: { x: number, y: number }) {
     const line = new Line(CanvasState.ctx, cx, cy, to.x, to.y);
     line.renderAngle();
 }
-//
+// 连接节点
 function Linked(item: Section) {
     item.children.push(currNode);
     SRootNode.value.children = SRootNode.value.children.filter(s => {
@@ -98,12 +117,17 @@ function Linked(item: Section) {
 }
 
 
+
 export {
+    SNodeCount,
     SRootNode,
     SVerifyVals,
     SInputVals,
     SBaseInfo,
     SNodeList,
+    SDrawerState,
+    CanvasState,
+    SRequestResult,
     Linked,
     LinkNode,
     SNodeMove,
@@ -112,6 +136,7 @@ export {
     SNewChildNode,
     SSaveNode,
     SNodeCountAdd,
+    SRemoveNode,
 }
 
 
@@ -131,16 +156,6 @@ function traverseNode(des: Section, src: Section): boolean {
     }
     return false;
 }
-// 删除节点
-export function SRemoveNode(seek: number) {
-    console.log("test");
-    // if (traverseNode(SSections.value[SSeek.value], SRootNode)) {
-    //     SSections.value.splice(seek, 1)
-    //     SSections.value[seek].state.delete = true;
-    // } else {
-    //     console.log("not found");
-    // }
-}
 // 清屏重绘
 export function clearRect() {
     if (CanvasState.ctx) {
@@ -158,15 +173,15 @@ export function relink(s: Section) {
     const fx = s.pos.sx;
     const fy = s.pos.sy;
     for (let i = 0; i < s.children.length; i++) {
-        // if (!s.children[i].state.delete) {
-        const cn = s.children[i];
-        const line = new Line(CanvasState.ctx, fx + 25, fy + 25, cn.pos.sx + 25, cn.pos.sy + 25);
-        const an = Math.atan2(line.sy - line.ey, line.sx - line.ex) * Math.PI / 180;
-        line.ex += Math.sin(an) * 25;
-        line.ey -= Math.cos(an) * 25;
-        line.renderAngle();
-        relink(cn);
-        // }
+        if (!s.children[i].state.delete) {
+            const cn = s.children[i];
+            const line = new Line(CanvasState.ctx, fx + 25, fy + 25, cn.pos.sx + 25, cn.pos.sy + 25);
+            const an = Math.atan2(line.sy - line.ey, line.sx - line.ex) * Math.PI / 180;
+            line.ex += Math.sin(an) * 25;
+            line.ey -= Math.cos(an) * 25;
+            line.renderAngle();
+            relink(cn);
+        }
     }
 }
 //
@@ -205,7 +220,11 @@ export function Calculation(addr: string, url: string): string {
 // 自动生成类型
 const autoType = ['mobile', 'uuid'];
 //
-export function Run(node: Section) {
+
+
+export function RunSection() { Run(currNode) }
+
+function Run(node: Section) {
     console.log(node);
     AxiosGeneral({
         url: Calculation(config.testAddr[0], node.request.url),
@@ -266,9 +285,14 @@ export function traverseSection(s: Section) {
     }
 }
 // 对外提供初始化方法(外部调用)
-export function InitAutoTest(params: any) {
-    if (params) {
-        SRootNode.value = params; //
+export function InitAutoTest(params: any, other: any[]) {
+    if (params && other) {
+        SRootNode.value = params;
+        for (let i = 0; i < other.length; i++) {
+            SRootNode.value.children.push(other[i]);
+            // 删除数据
+            removeItem(`sec${other[i].id}`)
+        }
         currNode = SRootNode.value;
         for (let i = 0; i < SRootNode.value.children.length; i++) {
             traverseSection(SRootNode.value.children[i]);

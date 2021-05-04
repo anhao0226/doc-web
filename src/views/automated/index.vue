@@ -9,10 +9,17 @@
             <li @click="addRootNode">Reset</li>
             <li @click="addRootNode">Root</li>
             <li @click="addChildNode">Child</li>
-            <li @click="intoLinekState">Link</li>
-            <li @click="delCurrNode">Del</li>
+            <li
+              @click="intoLinekState"
+              :class="[state == 0 ? 'menu-select' : '']"
+            >
+              Link
+            </li>
+            <li @click="delCurrNode">Remove</li>
+            <li @click="saveNode">Save</li>
             <li @click="startRun">Run</li>
             <li>
+              <span class="box-state default">success</span>
               <span class="box-state success">success</span>
               <span class="box-state error">error</span>
             </li>
@@ -33,7 +40,7 @@
     </div>
   </div>
   <!-- details -->
-  <Details></Details>
+  <Details :info="currSelectNode"></Details>
   <!-- menu -->
   <Menu></Menu>
 </template>
@@ -43,10 +50,7 @@ import { defineComponent, onMounted, ref } from "vue";
 import Menu from "./menu.vue";
 import Details from "./details.vue";
 import Node from "./node.vue";
-
-import { Line } from "./draw";
-
-import { Section } from './type'
+import { Section } from "./store/type";
 
 import { GBoxStateInfo } from "./../../store/index";
 
@@ -56,13 +60,13 @@ import {
   SNewRootNode,
   SNewChildNode,
   CanvasInit,
-  SRemoveNode,
-  Run,
+  RunSection,
   SNodeList,
   SNodeMove,
-  SBaseInfo,
   LinkNode,
   Linked,
+  SRemoveNode,
+  SSaveNode,
 } from "./store";
 
 export default defineComponent({
@@ -79,24 +83,25 @@ export default defineComponent({
     let ctx: any = {};
     const currClickIdx = ref<number>(0);
     let timer: any = null;
-
     let isMove = false;
-    let secSeek = ref<number>(-1);
-
-    // 操作状态 0 link ]
-    let state = -1;
+    let state = ref<number>(-1);
+    const currSelectNode = ref<Section>(null as any);
 
     // 状态切换
-    const changeOpState = () => {
+    const changeOpState = (mode: string) => {
+      switch (mode) {
+        case "":
+      }
       console.log("test");
     };
 
     const nodeMousedownEvent = (e: any, item: Section) => {
-      if(state == 0) {
+      currSelectNode.value = item;
+      if (state.value == 0) {
         Linked(item);
-        state = -1
+        state.value = -1;
         clearRect();
-        return
+        return;
       }
       isMove = true;
       clickLeft = e.clientX - item.pos.sx;
@@ -104,9 +109,19 @@ export default defineComponent({
       SNodeToggle(item);
     };
 
+    const saveNode = () => {
+      SSaveNode();
+    };
+
     // node to node
     const intoLinekState = () => {
-      state = 0;
+      if (state.value == -1) {
+        state.value = 0;
+      } else {
+        // 取消连接状态
+        state.value = -1;
+        clearRect();
+      }
     };
 
     const nodeMouseupEvent = () => {
@@ -117,7 +132,7 @@ export default defineComponent({
       clearTimeout(timer);
       GBoxStateInfo.value.x = e.clientX - e.offsetX + 50;
       GBoxStateInfo.value.y = e.clientY - e.offsetY;
-      GBoxStateInfo.value.data = item.request.title;
+      GBoxStateInfo.value.data = item.request.title || "未初始化";
       if (!GBoxStateInfo.value.state) {
         GBoxStateInfo.value.state = false;
         timer = setTimeout(() => {
@@ -132,11 +147,21 @@ export default defineComponent({
       ctx = (canvas as any).getContext("2d");
       CanvasInit(ctx, canvas);
       clearRect();
+      console.log("Test");
+
+      document
+        .getElementsByClassName("auto_wrapper")[0]
+        .addEventListener("scroll", (e: any) => {
+          // console.log(e);
+        });
 
       window.addEventListener("mousemove", (e: any) => {
         // 连接状态
-        if (state == 0) {
-          LinkNode({ x: e.clientX, y: e.clientY });
+        if (state.value == 0) {
+          LinkNode({
+            x: e.clientX - clickLeft + 25,
+            y: e.clientY - clickTop + 25,
+          });
           return;
         }
         // 移动状态
@@ -159,15 +184,15 @@ export default defineComponent({
     };
 
     const delCurrNode = () => {
-      SRemoveNode(secSeek.value);
-      clearRect();
+      SRemoveNode();
     };
 
     const startRun = () => {
-      Run(null as any);
+      RunSection();
     };
 
     return {
+      state,
       addRootNode,
       addChildNode,
       startRun,
@@ -178,6 +203,8 @@ export default defineComponent({
       nodeMouseupEvent,
       SNodeList,
       intoLinekState,
+      saveNode,
+      currSelectNode,
     };
   },
 });
@@ -188,6 +215,12 @@ export default defineComponent({
 */
 </script>
 <style scoped>
+/* select */
+.menu-select {
+  background-color: cadetblue;
+  color: #fff;
+}
+
 .auto_wrap {
   width: 100%;
   height: 100%;
@@ -253,6 +286,10 @@ export default defineComponent({
   display: inline-block;
   border-radius: 50%;
   margin-right: 6px;
+}
+
+.op-menu .default::before {
+  background-color: #6495ed;
 }
 /*  */
 .op-menu .success::before {

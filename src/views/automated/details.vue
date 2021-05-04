@@ -1,73 +1,99 @@
 <template>
   <DrawerComponent
-    v-model="G_DrawerState.info"
+    v-model="SDrawerState.details"
     :width="500"
     algin="right"
     :zIndex="10003"
   >
     <template v-slot:title>Details</template>
     <template v-slot:content>
-      <div class="">
+      <div class="details-container">
+        <!-- 标题 -->
         <div class="data-title">
           <span class="title">{{
             SBaseInfo.title.length > 0 ? SBaseInfo.title : "Select Api"
           }}</span>
-          <i @click="changeInfo" class="iconfont icon-trash"></i>
+          <span>
+            <!-- 展示结果 -->
+            <i
+              @click="showRequestResult"
+              :class="['iconfont', 'icon-link', 'icon-default']"
+            ></i>
+            <!-- 展示结果 -->
+            <i
+              @click="selectMenu"
+              :class="[
+                'iconfont',
+                'icon-link',
+                'icon-default',
+                SDrawerState.menu ? 'box-select' : '',
+              ]"
+            ></i>
+          </span>
         </div>
-        <div class="data-input-box">
-          <p class="label">
-            <span>Input</span>
-          </p>
-          <table class="gridtable">
-            <tr>
-              <th>key</th>
-              <th>value</th>
-              <th>auto</th>
-              <th>type</th>
-            </tr>
-            <!-- 数据处理和绑定 -->
-            <tr v-for="(item, index) in SInputVals" :key="index">
-              <!-- key  -->
-              <td>{{ item.key }}</td>
-              <!-- data -->
-              <td><input class="input" type="text" v-model="item.detail" /></td>
-              <!-- auto -->
-              <td><Switch v-model="item.auto"></Switch></td>
-              <!-- type -->
-              <td>
-                <Select
-                  v-model="item.type"
-                  :list="['mobile', 'uuid', 'f-input', 'f-result', 'custom']"
-                ></Select>
-              </td>
-            </tr>
-          </table>
+        <!--  -->
+        <div v-if="boxState" style="padding:16px">
+          <pre>{{SRequestResult}}</pre>
         </div>
-        <div class="data-input-box">
-          <p class="label">
-            <span>Verify</span>
-            <span style="padding: 0 50px" @click="addVerifyValue">new</span>
-          </p>
-          <table class="gridtable">
-            <tr>
-              <th>key</th>
-              <th>value</th>
-              <th>op</th>
-              <th>type</th>
-            </tr>
-            <tr v-for="(item, index) in SVerifyVals" :key="index">
-              <td><input class="input" type="text" v-model="item.key" /></td>
-              <td><input class="input" type="text" v-model="item.value" /></td>
-              <td>
-                <i
-                  class="iconfont icon-trash"
-                  @click="delVerifyValue(index)"
-                ></i>
-              </td>
-            </tr>
-          </table>
+        <!--  -->
+        <div v-if="!boxState">
+          <!-- 参数 -->
+          <div class="data-input-box">
+            <p class="label">
+              <span>Input</span>
+            </p>
+            <table class="gridtable">
+              <tr>
+                <th>key</th>
+                <th>value</th>
+                <th>type</th>
+              </tr>
+              <!-- 数据处理和绑定 -->
+              <tr v-for="(item, index) in SInputVals" :key="index">
+                <!-- key  -->
+                <td>{{ item.key }}</td>
+                <!-- data -->
+                <td>
+                  <input class="input" type="text" v-model="item.detail" />
+                </td>
+                <!-- type -->
+                <td>
+                  <Select
+                    v-model="item.type"
+                    :list="['mobile', 'uuid', 'f-input', 'f-result', 'custom']"
+                  ></Select>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <!-- 验证 -->
+          <div class="data-input-box">
+            <p class="label">
+              <span>Verify</span>
+              <span style="padding: 0 50px" @click="addVerifyValue">new</span>
+            </p>
+            <table class="gridtable">
+              <tr>
+                <th>key</th>
+                <th>value</th>
+                <th>op</th>
+              </tr>
+              <tr v-for="(item, index) in SVerifyVals" :key="index">
+                <td><input class="input" type="text" v-model="item.key" /></td>
+                <td>
+                  <input class="input" type="text" v-model="item.value" />
+                </td>
+                <td>
+                  <i
+                    class="iconfont icon-trash"
+                    @click="delVerifyValue(index)"
+                  ></i>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div @click="saveNodeInfo" class="save_btn">Save</div>
         </div>
-        <div @click="saveNodeInfo" class="save_btn">Save</div>
       </div>
     </template>
   </DrawerComponent>
@@ -76,62 +102,57 @@
 <script lang='ts'>
 import { defineComponent, watch, ref } from "vue";
 import DrawerComponent from "./../../components/Drawer.vue";
-import Switch from "./../../components/Switch.vue";
 import Select from "./../../components/Select.vue";
 
 import {
   SInputVals,
   SVerifyVals,
-  G_DrawerState,
+  SDrawerState,
   SSaveNode,
   SBaseInfo,
-} from "./store";
-import { saveSections } from "./../../libs/storage";
+  SRequestResult,
+} from "./store/index";
 
 export default defineComponent({
   components: {
     DrawerComponent,
-    Switch,
     Select,
   },
   setup(props: any) {
-    const boxState = ref<boolean>(props.state);
-    watch(
-      () => props.state,
-      (newValue) => {
-        boxState.value = newValue;
-      }
-    );
+    const boxState = ref<boolean>(false);
 
-    // 保存节点信息
     const saveNodeInfo = () => {
       SSaveNode();
     };
 
     const addVerifyValue = () => {
-      // 添加需要验证的值
       SVerifyVals.value.push({ key: "", value: "" });
     };
 
-    // 删除验证条件
     const delVerifyValue = (index: number) => {
       SVerifyVals.value.splice(index, 1);
     };
 
-    const changeInfo = () => {
-      G_DrawerState.value.menu = true;
+    const selectMenu = () => {
+      SDrawerState.value.menu = !SDrawerState.value.menu;
     };
 
+    const showRequestResult = () => {
+      boxState.value = !boxState.value;
+    }
+
     return {
-      boxState,
       addVerifyValue,
       delVerifyValue,
       saveNodeInfo,
-      changeInfo,
+      selectMenu,
       SInputVals,
       SBaseInfo,
       SVerifyVals,
-      G_DrawerState,
+      SDrawerState,
+      showRequestResult,
+      SRequestResult,
+      boxState
     };
   },
 });
@@ -148,6 +169,7 @@ table.gridtable {
   border-color: #606266;
   border-collapse: collapse;
 }
+
 table.gridtable th {
   padding: 8px;
   border: none;
@@ -167,6 +189,12 @@ table.gridtable td {
   /* background-color: brown; */
   text-align: center;
   padding: 20px 0;
+}
+
+.details-container {
+  height: 100%;
+  width: 100%;
+  overflow-y: scroll;
 }
 
 .data-input-box .label {
@@ -208,5 +236,12 @@ table.gridtable td {
   background-color: blanchedalmond;
   text-align: center;
   padding: 10px 0;
+}
+
+.box-select {
+  color: cadetblue;
+}
+.icon-default {
+  padding: 0 10px;
 }
 </style>

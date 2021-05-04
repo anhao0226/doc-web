@@ -7,23 +7,28 @@
       <span v-else>测试区域</span>
     </template>
     <template v-slot:content>
-      <!-- 参数渲染区 -->
-      <div class="box-params" v-if="currClickIdx > -1">
-        <li v-for="(item, index) in comments[currClickIdx].Params" :key="index">
-          <InputComponent
-            :width="280"
-            :label="item[0]"
-            v-model="values[index]"
-          ></InputComponent>
+      <div class="content-box">
+        <!-- 参数渲染区 -->
+        <div class="box-params" v-if="currClickIdx > -1">
+          <li
+            v-for="(item, index) in comments[currClickIdx].Params"
+            :key="index"
+          >
+            <InputComponent 、
+              :width="280"
+              :label="item[0]"
+              v-model="values[index]"
+            ></InputComponent>
+          </li>
+        </div>
+        <!-- 请求按钮 -->
+        <li>
+          <div class="fetch-btn" @click="FetchResult">Fetch</div>
         </li>
-      </div>
-      <!-- 请求按钮 -->
-      <li>
-        <div class="fetch-btn" @click="FetchResult">Fetch</div>
-      </li>
-      <!-- 请求结果展示区 -->
-      <div class="result">
-        <pre>{{ result }}</pre>
+        <!-- 请求结果展示区 -->
+        <div class="result">
+          <pre>{{ result }}</pre>
+        </div>
       </div>
     </template>
   </DrawerComponent>
@@ -43,9 +48,9 @@ import InputComponent from "./Input.vue";
 import { AxiosGeneral } from "./../libs/http";
 import { Method } from "node_modules/axios";
 import DrawerComponent from "./../components/Drawer.vue";
-import { Section } from "./automated/type";
+import { Section } from "./automated/store/type";
 import { SNodeCountAdd } from "./automated/store";
-import { saveNode } from './../libs/storage'
+import { saveNode } from "./../libs/storage";
 
 export default defineComponent({
   components: {
@@ -156,6 +161,10 @@ export default defineComponent({
   border-radius: 6px;
 }
 
+.content-box {
+  height: 100%;
+  overflow-y: scroll;
+}
 .container {
   width: 100%;
   height: calc(100% - 62px);

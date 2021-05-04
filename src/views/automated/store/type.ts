@@ -44,9 +44,12 @@ export interface Pos {
 
 /*
     State
+    default 0
+    select 1
+    delete 2
+    
 */
 export interface State {
-    seek?: number;
     select: boolean;
     active: boolean;
     fetch: boolean;

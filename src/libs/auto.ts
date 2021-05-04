@@ -1,0 +1,6 @@
+
+
+const auto = {
+    UUID: () => { },
+    MOBILE: () => { }
+}

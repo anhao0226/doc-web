@@ -1,6 +1,6 @@
 <template>
   <DrawerComponent
-    v-model="G_DrawerState.menu"
+    v-model="SDrawerState.menu"
     :width="250"
     algin="left"
     :zIndex="10003"
@@ -28,14 +28,10 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent, onMounted, ref } from "vue";
+import { defineComponent, ref } from "vue";
 import DrawerComponent from "./../../components/Drawer.vue";
 import { comments } from "./../comm";
-import {
-  G_DrawerState,
-  SInputVals,
-  SBaseInfo,
-} from "./store";
+import { SDrawerState, SInputVals, SBaseInfo } from "./store/index";
 export default defineComponent({
   components: {
     DrawerComponent,
@@ -75,7 +71,7 @@ export default defineComponent({
       searchValue,
       comments,
       selectItem,
-      G_DrawerState,
+      SDrawerState,
     };
   },
 });

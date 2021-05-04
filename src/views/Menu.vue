@@ -1,14 +1,20 @@
 <template>
-  <DrawerCompoment v-model="MainMenuInfo[2].display" algin="left" :width="300">
+  <DrawerCompoment v-model="MainMenuInfo[2].display" algin="right" :width="300">
     <template v-slot:title>Menu</template>
     <template v-slot:content>
+      <div class="search-box">
+        <input
+          type="text"
+          placeholder="search"
+          @input="searchValue($event.target.value)"
+        />
+      </div>
       <ul class="menu">
         <li
-          v-for="(item, index) in SearchList"
+          v-for="(item, index) in searchResult"
           :key="index"
           @click="formatInputVals(index)"
         >
-          <span>{{ index }}</span>
           <a :href="`#${item}`">{{ item }}</a>
           <i class="iconfont icon-link"></i>
         </li>
@@ -18,7 +24,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, onMounted,ref } from "vue";
 import { SearchList, MainMenuInfo, MainMenuChange, comments } from "./comm";
 import { _inputValues, _commentIndex } from "./../store/index";
 import DrawerCompoment from "./../components/Drawer.vue";
@@ -28,6 +34,15 @@ export default defineComponent({
     DrawerCompoment,
   },
   setup() {
+
+    const searchResult = ref<string[]>([])
+
+    onMounted(() => {
+      SearchList.value.forEach(ele => {
+        searchResult.value.push(ele)
+      })
+    })
+
     const formatInputVals = (index: number) => {
       _commentIndex.value = index;
       _inputValues.value = [];
@@ -41,8 +56,17 @@ export default defineComponent({
       });
     };
 
+
+    const searchValue = (text:string) => {
+      searchResult.value = SearchList.value.filter( ele => {
+        console.log(ele.includes(text));
+        return ele.includes(text)
+      })
+    }
+
     return {
-      SearchList,
+      searchValue,
+      searchResult,
       MainMenuInfo,
       MainMenuChange,
       formatInputVals,
@@ -90,8 +114,26 @@ export default defineComponent({
   color: #606266;
 }
 .menu {
-  padding: 0 10px;
+  padding: 0 16px;
+  overflow-y: scroll;
+  height: calc(100% - 30px);
 }
+
+.search-box {
+  /* background-color: royalblue; */
+  text-align: center;
+}
+
+.search-box input {
+  height: 30px;
+  width: 96%;
+  background-color: rgba(0, 0, 0, 0.03);
+  outline: none;
+  border-style: none;
+  border-radius: 6px;
+  text-indent: 10px;
+}
+
 
 .menu li {
   display: flex;

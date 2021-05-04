@@ -1,5 +1,6 @@
 <template>
   <div
+    v-if="!value.state.delete"
     class="default"
     :style="{
       top: `${value.pos.sy}px`,
@@ -7,23 +8,23 @@
       'background-color': bgColor,
     }"
   >
-    <!-- <div
-      class="mask"
-      :style="{ 'background-color': state.select ? 'rgba(0, 0, 0, 0.4)' : '' }"
-    > -->
+    <div :class="['node__container', value.state.select ? 'node-select' : '']">
       {{ value.id }}
-    <!-- </div> -->
+      <!-- {{instance.appContext.mixins[0].myOptions}} -->
+    </div>
   </div>
 </template>
 
 <script lang='ts'>
-import { defineComponent, ref, watch } from "vue";
+import { defineComponent, ref, getCurrentInstance, SetupContext } from "vue";
 
 export default defineComponent({
   props: ["value"],
-  setup(props: any, ctx: any) {
+  setup(props: any, ctx: SetupContext) {
+  
     const bgColor = ref<string>("#6495ed");
     const mask = ref<boolean>(false);
+    
     return {
       mask,
       bgColor,
@@ -46,10 +47,14 @@ export default defineComponent({
   font-weight: 600;
   color: #fff;
   overflow: hidden;
+  background-color: #6495ed;
 }
-.mask {
+.node__container {
   width: 100%;
   height: 100%;
-  transition: 0.3s;
+  background-color: #6495ed;
+}
+.node-select {
+  background-color: cadetblue;
 }
 </style>

@@ -1,12 +1,16 @@
 <template>
-  <div class="select">
+  <div class="select" >
     <input
       class="input__inner"
       :value="showText"
       readonly="true"
       @click="clickEvent"
     />
-    <div class="select__menu" :style="{ height: state ? menuHeight : '0' }">
+    <i class="iconfont icon-link select-arrow"></i>
+    <div
+      class="select__menu"
+      :style="{ height: state ? menuHeight : '0', opacity: state ? '1' : '0' }"
+    >
       <li
         v-for="(item, index) in list"
         :key="index"
@@ -19,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from "vue";
+import { defineComponent, ref, watch, getCurrentInstance } from "vue";
 
 export default defineComponent({
   props: {
@@ -28,14 +32,20 @@ export default defineComponent({
   },
   emits: ["update:modelValue"],
   setup(props: any, ctx: any) {
+    const instance = getCurrentInstance();
+    // 添加数据
+    (instance as any).appContext.mixins[0].select.value.push({
+       state: false,
+       uid: instance?.uid
+     });
+
     const state = ref<boolean>(false);
-    console.log(props);
     const showText = ref<string>(props.modelValue);
     const menuHeight = `${props.list.length * 36}px`;
 
     watch(
       () => props.modelValue,
-      (newValue:string) => {
+      (newValue: string) => {
         showText.value = newValue;
       }
     );
@@ -70,8 +80,8 @@ export default defineComponent({
 .input__inner {
   background-color: #fff;
   background-image: none;
-  border-radius: 2px;
-  border: 1px solid #dcdfe6;
+  border-radius: 3px;
+  border: 1px solid #d9d9d9;
   box-sizing: border-box;
   color: #606266;
   display: inline-block;
@@ -79,7 +89,7 @@ export default defineComponent({
   height: 30px;
   line-height: 30px;
   outline: none;
-  padding: 0 15px;
+  padding: 0 10px;
   width: 100%;
 }
 
@@ -89,20 +99,34 @@ export default defineComponent({
   width: 100%;
   border-radius: 2px;
   overflow: hidden;
-  transition: all 0.3s;
-  box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
+  opacity: 1;
+  transition: all 0.1s;
+  box-shadow: 0 3px 6px -4px rgb(0 0 0 / 12%), 0 6px 16px 0 rgb(0 0 0 / 8%),
+    0 9px 28px 8px rgb(0 0 0 / 5%);
   z-index: 1009;
   margin-top: 6px;
+  color: rgba(0, 0, 0, 0.85);
 }
 
 .select__menu li {
   cursor: pointer;
-  height: 36px;
-  line-height: 36px;
-  color: #606266;
+  height: 32px;
+  line-height: 32px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  text-align: left;
+  padding: 2px 14px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 400;
+  /* background-color: brown; */
+}
+
+.select-arrow {
+  position: absolute;
+  right: 10px;
+  top: 20%;
 }
 
 .select__menu li:hover {
