@@ -16,7 +16,7 @@ let SNodeCount = 0;
 // 保存根节点
 const SRootNode = ref<Section>(new Section(100, 100));
 // 保存当前节点
-let currNode: Section = null as any;
+let currNode: Section = SRootNode.value;
 // 节点列表(用于渲染)
 const SNodeList = ref<Section[]>([]);
 // 基本信息
@@ -50,11 +50,11 @@ function SNodeMove(pos: { x: number, y: number }) {
 // 删除节点(当前节点的delete状态)
 function SRemoveNode() {
     currNode.state.delete = true;
-    clearRect();
 }
 // 保存子节点
 function SNewChildNode() {
     const fnode = currNode;
+    console.log(fnode);
     const len = fnode.children.length;
     const child = new Section(0, 0);
     child.id = ++SNodeCount;
@@ -68,10 +68,10 @@ function SNewChildNode() {
     }
     SNodeList.value.push(child);
     fnode.children.push(child);
-    clearRect();
 }
 // 创建根节点
 function SNewRootNode() {
+    console.log(currNode);
     const { sx, sy } = currNode.pos;
     const node = new Section(sx + 100, sy);
     node.id = ++SNodeCount;
@@ -96,27 +96,28 @@ function saveNode() {
             clearNode(src.children[i]);
         }
     }
-    // 清除被删除的节点
     clearNode(SRootNode.value);
     saveSections(JSON.stringify(SRootNode.value));
 }
 // 连接状态
-function LinkNode(to: { x: number, y: number }) {
-    clearRect();
+function SDrawLink(to: { x: number, y: number }) {
     const cx = currNode.pos.sx + 25;
     const cy = currNode.pos.sy + 25;
     const line = new Line(CanvasState.ctx, cx, cy, to.x, to.y);
     line.renderAngle();
 }
 // 连接节点
-function Linked(item: Section) {
-    item.children.push(currNode);
-    SRootNode.value.children = SRootNode.value.children.filter(s => {
-        return s.id != currNode.id;
-    })
+function SLinked(item: Section) {
+    const s = currNode;
+    for (let i = 0; i < SRootNode.value.children.length; i++) {
+        if (SRootNode.value.children[i].id == currNode.id) {
+            SRootNode.value.children.splice(i, 1);
+            break;
+        }
+    }
+    console.log(s);
+    item.children.push(s);
 }
-
-
 
 export {
     SNodeCount,
@@ -128,8 +129,8 @@ export {
     SDrawerState,
     CanvasState,
     SRequestResult,
-    Linked,
-    LinkNode,
+    SLinked,
+    SDrawLink,
     SNodeMove,
     SNodeToggle,
     SNewRootNode,
@@ -156,31 +157,32 @@ function traverseNode(des: Section, src: Section): boolean {
     }
     return false;
 }
-// 清屏重绘
-export function clearRect() {
-    if (CanvasState.ctx) {
-        const ctx = CanvasState.ctx as any;
-        ctx.clearRect(0, 0, (CanvasState.canvas as any).width, (CanvasState.canvas as any).height);
-        for (let i = 0; i < SRootNode.value.children.length; i++) {
-            if (!SRootNode.value.children[i].state.delete) {
-                relink(SRootNode.value.children[i]);
-            }
-        }
-    }
-}
-// 重绘信息
-export function relink(s: Section) {
+
+// 重绘
+export function repaint(s: Section, add: { x: number, y: number }) {
     const fx = s.pos.sx;
     const fy = s.pos.sy;
     for (let i = 0; i < s.children.length; i++) {
         if (!s.children[i].state.delete) {
             const cn = s.children[i];
-            const line = new Line(CanvasState.ctx, fx + 25, fy + 25, cn.pos.sx + 25, cn.pos.sy + 25);
+            const line = new Line(CanvasState.ctx, fx + 25 + add.x, fy + 25 + add.y, cn.pos.sx + 25 + add.x, cn.pos.sy + 25 + add.y);
             const an = Math.atan2(line.sy - line.ey, line.sx - line.ex) * Math.PI / 180;
             line.ex += Math.sin(an) * 25;
             line.ey -= Math.cos(an) * 25;
             line.renderAngle();
-            relink(cn);
+            repaint(cn, add);
+        }
+    }
+}
+// 清屏重绘
+export function SCanvasRepaint(add: { x: number, y: number }) {
+    if (CanvasState.ctx) {
+        const ctx = CanvasState.ctx as any;
+        ctx.clearRect(0, 0, (CanvasState.canvas as any).width, (CanvasState.canvas as any).height);
+        for (let i = 0; i < SRootNode.value.children.length; i++) {
+            if (!SRootNode.value.children[i].state.delete) {
+                repaint(SRootNode.value.children[i], add);
+            }
         }
     }
 }
@@ -220,10 +222,8 @@ export function Calculation(addr: string, url: string): string {
 // 自动生成类型
 const autoType = ['mobile', 'uuid'];
 //
-
-
 export function RunSection() { Run(currNode) }
-
+//
 function Run(node: Section) {
     console.log(node);
     AxiosGeneral({
@@ -287,10 +287,10 @@ export function traverseSection(s: Section) {
 // 对外提供初始化方法(外部调用)
 export function InitAutoTest(params: any, other: any[]) {
     if (params && other) {
+        console.log("test init");
         SRootNode.value = params;
         for (let i = 0; i < other.length; i++) {
             SRootNode.value.children.push(other[i]);
-            // 删除数据
             removeItem(`sec${other[i].id}`)
         }
         currNode = SRootNode.value;

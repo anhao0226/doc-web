@@ -14,7 +14,7 @@ export class Line {
     headlen = 12;
     theta = 20;
     width = 2;
-    color = "#E4E7ED";
+    color = "rgba(230, 230, 230)";
     ctx: any = null;
 
     constructor(ctx: any, sx: number, sy: number, ex: number, ey: number) {

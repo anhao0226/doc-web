@@ -10,7 +10,7 @@
             <span>data addr</span>
             <i class="iconfont icon-add" @click="showInputBox(0)"></i>
           </li>
-          <li class="add-input" v-if="inputStata[0]">
+          <li class="add-input" v-show="inputState[0]">
             <span>
               <input type="text" v-model="inputValue[0]" />
             </span>
@@ -44,7 +44,7 @@
               </div>
             </span>
           </li>
-          <li class="add-input" v-if="inputStata[1]">
+          <li class="add-input" v-show="inputState[1]">
             <span>
               <input type="text" v-model="inputValue[1]" />
             </span>
@@ -88,7 +88,8 @@ export default defineComponent({
 
     const dataAddr = ref<string[]>([]);
     const testAddr = ref<string[]>([]);
-    const inputStata = ref<boolean[]>([false, false]);
+    const inputState = ref<boolean[]>([false, false]);
+
     const inputValue = ["", ""];
     const slideBtnState = ref<boolean>(false);
 
@@ -106,13 +107,17 @@ export default defineComponent({
     };
 
     const showInputBox = (idx: number) => {
-      inputStata.value[idx] = true;
+      console.log(idx)
+      console.log(inputState.value[idx])
+      inputState.value[idx] = true;
     };
 
     const saveConfig = (idx: number) => {
       switch (idx) {
         case 0:
+          console.log(idx);
           dataAddr.value.push(inputValue[idx]);
+
           setItem("0", JSON.stringify(dataAddr.value));
           // 第一次使用時加載
           if (dataAddr.value.length == 1) {
@@ -126,13 +131,13 @@ export default defineComponent({
           setItem("1", JSON.stringify(testAddr.value));
           break;
       }
-      inputStata.value[idx] = false;
+      inputState.value[idx] = false;
     };
 
     return {
       dataAddr,
       testAddr,
-      inputStata,
+      inputState,
       showInputBox,
       saveConfig,
       inputValue,

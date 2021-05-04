@@ -33,7 +33,7 @@
         </div>
         <!--  -->
         <div v-if="boxState" style="padding:16px">
-          <pre>{{SRequestResult}}</pre>
+          <pre><code>{{SRequestResult}}</code></pre>
         </div>
         <!--  -->
         <div v-if="!boxState">

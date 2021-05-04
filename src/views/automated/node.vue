@@ -21,7 +21,6 @@ import { defineComponent, ref, getCurrentInstance, SetupContext } from "vue";
 export default defineComponent({
   props: ["value"],
   setup(props: any, ctx: SetupContext) {
-  
     const bgColor = ref<string>("#6495ed");
     const mask = ref<boolean>(false);
     
@@ -38,7 +37,7 @@ export default defineComponent({
   position: absolute;
   width: 50px;
   height: 50px;
-  z-index: 1001;
+  z-index: 3005;
   cursor: pointer;
   border-radius: 50%;
   text-align: center;

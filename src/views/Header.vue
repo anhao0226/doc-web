@@ -66,7 +66,7 @@ export default defineComponent({
   width: 100%;
   transition: 0.3s;
   padding: 8px 0;
-  z-index: 1010;
+  z-index: 2001;
 }
 .container {
   width: 480px;
