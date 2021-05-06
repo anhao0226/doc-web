@@ -34,9 +34,6 @@ export class Line {
             topY = this.headlen * Math.sin(angle1),
             botX = this.headlen * Math.cos(angle2),
             botY = this.headlen * Math.sin(angle2);
-        console.log(angle);
-        // 判断
-
 
         this.ctx.save();
         this.ctx.beginPath();

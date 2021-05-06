@@ -10,7 +10,6 @@
   >
     <div :class="['node__container', value.state.select ? 'node-select' : '']">
       {{ value.id }}
-      <!-- {{instance.appContext.mixins[0].myOptions}} -->
     </div>
   </div>
 </template>

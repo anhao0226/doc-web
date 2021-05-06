@@ -100,10 +100,10 @@ function saveNode() {
     saveSections(JSON.stringify(SRootNode.value));
 }
 // 连接状态
-function SDrawLink(to: { x: number, y: number }) {
+function SDrawLink(to: { x: number, y: number }, add: { x: number, y: number }) {
     const cx = currNode.pos.sx + 25;
     const cy = currNode.pos.sy + 25;
-    const line = new Line(CanvasState.ctx, cx, cy, to.x, to.y);
+    const line = new Line(CanvasState.ctx, cx + add.x, cy + add.y, to.x, to.y);
     line.renderAngle();
 }
 // 连接节点

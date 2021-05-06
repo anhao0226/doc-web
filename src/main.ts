@@ -10,7 +10,7 @@ interface ComponentArgs {
     state: boolean
 }
 
-// select 保存下拉框
+// mixin
 app.mixin({
     select: ref<ComponentArgs[]>([])
 })

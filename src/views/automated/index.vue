@@ -9,15 +9,15 @@
       <div class="op-container">
         <ul class="op-menu">
           <li><router-link :to="{ name: 'home' }">Home</router-link></li>
-          <li @click="addRootNode">Reset</li>
-          <li @click="addRootNode">Root</li>
-          <li @click="addChildNode">Child</li>
-          <li @click="intoLinekState">Link</li>
-          <li @click="delCurrNode">Remove</li>
-          <li @click="saveNode">Save</li>
-          <li @click="startRun">Run</li>
+          <li @click="menuClickEvent(0)">Reset</li>
+          <li @click="menuClickEvent(1)">Root</li>
+          <li @click="menuClickEvent(2)">Child</li>
+          <li @click="menuClickEvent(3)">Link</li>
+          <li @click="menuClickEvent(4)">Remove</li>
+          <li @click="menuClickEvent(5)">Save</li>
+          <li @click="menuClickEvent(6)">Run</li>
           <li>
-            <span class="box-state default">success</span>
+            <span class="box-state default">default</span>
             <span class="box-state success">success</span>
             <span class="box-state error">error</span>
           </li>
@@ -68,7 +68,7 @@ import {
   SSaveNode,
 } from "./store";
 
-enum Trigger {
+enum OpState {
   NORMAL = 0,
   NODE_MOVE,
   NODE_LINK,
@@ -88,7 +88,7 @@ export default defineComponent({
     let timer: any = null;
     let containerEle = null as any;
     let containerMove: { x: number; y: number } = { x: 0, y: 0 };
-    const triggerEvent = ref<Trigger>(Trigger.NORMAL);
+    const opState = ref<OpState>(OpState.NORMAL);
 
     const showGBox = (e: any, item: Section) => {
       clearTimeout(timer);
@@ -114,35 +114,35 @@ export default defineComponent({
 
     // mouseup
     const mouseupEvent = (e: any) => {
-      switch (triggerEvent.value) {
-        case Trigger.BG_MOVE:
+      switch (opState.value) {
+        case OpState.BG_MOVE:
           containerMove.x = parseInt(containerEle.style.left) || 0;
           containerMove.y = parseInt(containerEle.style.top) || 0;
-          triggerEvent.value = Trigger.NORMAL;
+          opState.value = OpState.NORMAL;
           break;
-        case Trigger.NODE_MOVE:
-          triggerEvent.value = Trigger.NORMAL;
+        case OpState.NODE_MOVE:
+          opState.value = OpState.NORMAL;
           break;
       }
     };
 
     // mousedown
-    const mousedownEvent = (e: any, state: Trigger, s: any) => {
-      triggerEvent.value =
-        triggerEvent.value == Trigger.NODE_LINK ? Trigger.NODE_LINK : state;
+    const mousedownEvent = (e: any, state: OpState, s: any) => {
+      opState.value =
+        opState.value == OpState.NODE_LINK ? OpState.NODE_LINK : state;
 
-      switch (triggerEvent.value) {
-        case Trigger.NODE_MOVE:
+      switch (opState.value) {
+        case OpState.NODE_MOVE:
           clickLeft = e.clientX - s.pos.sx;
           clickTop = e.clientY - s.pos.sy;
           SNodeToggle(s);
           break;
-        case Trigger.NODE_LINK:
+        case OpState.NODE_LINK:
           SLinked(s);
           SCanvasRepaint({ x: containerMove.x, y: containerMove.y });
-          triggerEvent.value = Trigger.NORMAL;
+          opState.value = OpState.NORMAL;
           break;
-        case Trigger.BG_MOVE:
+        case OpState.BG_MOVE:
           clickLeft = e.clientX - containerMove.x;
           clickTop = e.clientY - containerMove.y;
           break;
@@ -151,21 +151,24 @@ export default defineComponent({
 
     // mousemove
     const mousemoveEvent = (e: any) => {
-      switch (triggerEvent.value) {
-        case Trigger.NODE_MOVE:
+      switch (opState.value) {
+        case OpState.NODE_MOVE:
           SNodeMove({ x: e.clientX - clickLeft, y: e.clientY - clickTop });
           SCanvasRepaint({ x: containerMove.x, y: containerMove.y });
           GBoxStateInfo.value.x = e.clientX - e.offsetX + 50;
           GBoxStateInfo.value.y = e.clientY - e.offsetY;
           break;
-        case Trigger.NODE_LINK:
+        case OpState.NODE_LINK:
           SCanvasRepaint({ x: containerMove.x, y: containerMove.y });
-          SDrawLink({
-            x: e.clientX + containerMove.x,
-            y: e.clientY + containerMove.y,
-          });
+          SDrawLink(
+            {
+              x: e.clientX,
+              y: e.clientY,
+            },
+            containerMove
+          );
           break;
-        case Trigger.BG_MOVE:
+        case OpState.BG_MOVE:
           containerEle.style.left = `${e.clientX - clickLeft}px`;
           containerEle.style.top = `${e.clientY - clickTop}px`;
           SCanvasRepaint({ x: e.clientX - clickLeft, y: e.clientY - clickTop });
@@ -173,50 +176,52 @@ export default defineComponent({
       }
     };
     //
-    const intoLinekState = () => {
-      if (triggerEvent.value == Trigger.NORMAL) {
-        triggerEvent.value = Trigger.NODE_LINK;
-      } else {
-        triggerEvent.value = Trigger.NORMAL;
+    const menuClickEvent = (i: number) => {
+      switch (i) {
+        case 0:
+          console.log("Reset");
+          break;
+        case 1:
+          SNewRootNode();
+          SCanvasRepaint({ x: containerMove.x, y: containerMove.y });
+          break;
+        case 2:
+          SNewChildNode();
+          SCanvasRepaint({ x: containerMove.x, y: containerMove.y });
+          break;
+        case 3:
+          intoLinekState();
+          break;
+        case 4:
+          SRemoveNode();
+          SCanvasRepaint({ x: containerMove.x, y: containerMove.y });
+          break;
+        case 5:
+          SSaveNode();
+          break;
+        case 6:
+          RunSection();
+          break;
+        default:
       }
     };
     //
-    const saveNode = () => {
-      SSaveNode();
-    };
-    // 添加根节点
-    const addRootNode = () => {
-      SNewRootNode();
-      SCanvasRepaint({ x: containerMove.x, y: containerMove.y });
-    };
-    // 添加子节点
-    const addChildNode = () => {
-      SNewChildNode();
-      SCanvasRepaint({ x: containerMove.x, y: containerMove.y });
-    };
-    //
-    const delCurrNode = () => {
-      SRemoveNode();
-      SCanvasRepaint({ x: containerMove.x, y: containerMove.y });
-    };
-    //
-    const startRun = () => {
-      RunSection();
+    const intoLinekState = () => {
+      if (opState.value == OpState.NORMAL) {
+        opState.value = OpState.NODE_LINK;
+      } else {
+        opState.value = OpState.NORMAL;
+      }
     };
 
     return {
       mouseupEvent,
       mousedownEvent,
       mousemoveEvent,
+      menuClickEvent,
 
-      addRootNode,
-      addChildNode,
-      startRun,
-      delCurrNode,
       showGBox,
-      SNodeList,
-      intoLinekState,
-      saveNode,
+      SNodeList
     };
   },
 });
