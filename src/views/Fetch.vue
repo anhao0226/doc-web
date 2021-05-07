@@ -14,7 +14,7 @@
             v-for="(item, index) in comments[currClickIdx].Params"
             :key="index"
           >
-            <InputComponent 、
+            <InputComponent
               :width="280"
               :label="item[0]"
               v-model="values[index]"
@@ -64,8 +64,8 @@ export default defineComponent({
 
     watch(currClickIdx, (newValue: number, oldValue: number) => {
       console.log(newValue, oldValue);
-      values.value.fill("");
-      result.value = "";
+      // values.value.fill("");
+      // result.value = "";
     });
 
     const FetchResult = () => {

@@ -68,6 +68,7 @@ export default defineComponent({
     });
 
     const ClickEvent = (idx: number) => {
+      console.log(idx);
       currClickIdx.value = idx;
       MainMenuChange(4, 10000);
     };
