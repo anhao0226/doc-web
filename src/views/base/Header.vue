@@ -39,6 +39,14 @@
           ></i>
         </router-link>
 
+         <router-link :to="{ name: 'login' }">
+          <i
+            class="iconfont icon-wenjuan"
+            :style="{ color: MainMenuInfo[7].display ? '#1875f0' : '' }"
+            @click="MainMenuChange(7)"
+          ></i>
+        </router-link>
+
         <i>{{ CommentsLen }}</i>
       </ul>
     </div>

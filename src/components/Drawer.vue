@@ -1,6 +1,6 @@
 <template>
   <div class="drawer" :style="styles">
-    <div class="container">
+    <div class="container" :style="{ width: `${widthStyle}px`}">
       <!--工具栏 -->
       <div class="toolbar">
         <span @click="drawerClose"></span>
@@ -40,6 +40,7 @@ export default defineComponent({
       () => props.modelValue,
       (newValue) => {
         drawerState.value = newValue;
+        widthStyle.value = props.width;
         if (drawerState.value) {
           styles.value.push(`width:${props.width}px`);
         } else {
@@ -63,6 +64,7 @@ export default defineComponent({
       drawerState,
       drawerClose,
       styles,
+      widthStyle,
     };
   },
 });

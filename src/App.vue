@@ -13,10 +13,10 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, ref } from "vue";
-import { MainMenuInfo, } from "./views/comm";
-import { GBoxStateInfo } from "./store/index";
+import { MainMenuInfo, } from "./views/base/comm";
+import { GBoxStateInfo, useStore } from "./store/index";
 
-import HeaderComponent from "./views/Header.vue";
+import HeaderComponent from "./views/base/Header.vue";
 
 export default defineComponent({
   components: {
@@ -25,14 +25,12 @@ export default defineComponent({
   setup() {
     let prev = 0;
     let timer: any = null;
-
+    const store = useStore();
     const GBoxState = ref<boolean>(false);
 
     onMounted(() => {
-      console.log(window.screen);
       document.addEventListener("click", () => {
         if (GBoxStateInfo.value.state) {
-          console.log("test")
           GBoxStateInfo.value.state = false;
         }
       });
@@ -58,6 +56,7 @@ export default defineComponent({
     return {
       MainMenuInfo,
       GBoxStateInfo,
+      store
     };
   },
 });

@@ -26,8 +26,8 @@
 <script lang="ts">
 import { defineComponent, onMounted,ref } from "vue";
 import { SearchList, MainMenuInfo, MainMenuChange, comments } from "./comm";
-import { _inputValues, _commentIndex } from "./../store/index";
-import DrawerCompoment from "./../components/Drawer.vue";
+import { _inputValues, _commentIndex } from "../../store/index";
+import DrawerCompoment from "../../components/Drawer.vue";
 
 export default defineComponent({
   components: {

@@ -1,12 +1,13 @@
-import { ref, reactive, Ref } from 'vue';
+import { ref } from 'vue';
 import { findValue, toString, getMobile, getUUID } from '../../../libs/utils'
-import { loadItem, saveSections, removeItem } from '../../../libs/storage'
+import { useStorage } from '../../../libs/storage'
 import { AxiosGeneral } from '../../../libs/http'
 import { InputValue, VerifyValue, BaseInfo, Section } from './type';
 import { Line } from './draw'
+// import { GConfig } from '@/store/index';
 
 // 加载配置
-const config = loadItem();
+const localStorage = useStorage();
 // cnavas 信息
 const CanvasState = { ctx: null, canvas: null }
 // 抽屉状态了
@@ -97,7 +98,7 @@ function saveNode() {
         }
     }
     clearNode(SRootNode.value);
-    saveSections(JSON.stringify(SRootNode.value));
+    localStorage.saveValue('secs', JSON.stringify(SRootNode.value))    
 }
 // 连接状态
 function SDrawLink(to: { x: number, y: number }, add: { x: number, y: number }) {
@@ -218,7 +219,7 @@ export function VerifyParams(des: VerifyValue<string>[], src: any): boolean {
 }
 // 计算请求路径
 export function Calculation(addr: string, url: string): string {
-    const http = config.isHttps ? 'https' : 'http'
+    const http = 'http'
     return `${http}://${addr}/${url}`
 }
 // 自动生成类型
@@ -228,8 +229,10 @@ export function RunSection() { Run(currNode) }
 //
 function Run(node: Section) {
     console.log(node);
+
+
     AxiosGeneral({
-        url: Calculation(config.testAddr[0], node.request.url),
+        url: Calculation("", node.request.url),
         method: node.request.method,
         params: FormatInputValue(node.input),
         success: (res: any) => {
@@ -293,7 +296,7 @@ export function InitAutoTest(params: any, other: any[]) {
         SRootNode.value = params;
         for (let i = 0; i < other.length; i++) {
             SRootNode.value.children.push(other[i]);
-            removeItem(`sec${other[i].id}`)
+            localStorage.removeItem(`sec${other[i].id}`)
         }
         currNode = SRootNode.value;
         for (let i = 0; i < SRootNode.value.children.length; i++) {

@@ -42,6 +42,9 @@ export default defineComponent({
 </script>
 
 <style lang="css" scoped>
+.switch {
+  height: 20px;
+}
 .switch__core {
   position: relative;
   width: 40px;

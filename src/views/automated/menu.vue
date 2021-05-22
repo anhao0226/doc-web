@@ -30,7 +30,7 @@
 <script lang='ts'>
 import { defineComponent, ref } from "vue";
 import DrawerComponent from "./../../components/Drawer.vue";
-import { comments } from "./../comm";
+import { comments } from "../base/comm";
 import { SDrawerState, SInputVals, SBaseInfo } from "./store/index";
 export default defineComponent({
   components: {

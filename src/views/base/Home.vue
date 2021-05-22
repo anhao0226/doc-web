@@ -1,5 +1,6 @@
 <template>
   <div id="home">
+    <!-- <input type="file" id="uploadFile" /> -->
    <a class="cmt-item" v-for="(item, index) in comments" :key="index"
     @click="ClickEvent(index)" :name="`${item.Title[0]}`">
       <div class="op0" style="background-color:#409EFF">
@@ -53,6 +54,26 @@ export default defineComponent({
     let timer: any = null;
 
     onMounted(() => {
+
+
+      const upload  = document.getElementById("uploadFile");
+
+
+      // 读取文件
+      upload?.addEventListener("change", (e:any) => {
+        const input = e.target;
+        const files = e.target.files;
+        console.log(files);
+        var reader = new FileReader();
+        // 读取文件
+        reader.onload = function(){
+            console.log(this.result);
+        };
+
+        reader.readAsText(files[0])
+        
+        
+      })
       // window.addEventListener("scroll", () => {
       //   clearTimeout(timer);
       //   MainMenuInfo.value[0].display = false;
@@ -135,7 +156,7 @@ export default defineComponent({
 table {
   vertical-align: middle;
   display: inline-block;
-  border-collapse: collapse;
+  border-collapse: collapse;  
   table-layout: fixed;
   /* background-color: blueviolet; */
 }
@@ -145,15 +166,6 @@ table caption {
   margin: 0.5em 0 0.75em;
 }
 
-table tr {
-  /* background-color: #f8f8f8;
-  border: 1px solid #ddd;
-  padding: .35em; */
-}
-
-table th,
-table td {
-}
 
 .text {
   height: 46px;

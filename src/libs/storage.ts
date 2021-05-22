@@ -1,69 +1,97 @@
 
-const storage = window.localStorage
+import { Value } from './type'
+import { hasOwnProperty } from './utils'
 
-export function setItem(key: string, val: string) {
-    storage.setItem(key, val)
-}
+class LocalStorage {
 
-export function removeItem(key: string) {
-    storage.removeItem(key)
-}
+    value: any = {};
+    storage: Storage = window.localStorage;
 
-// 
-export interface Config {
-    dataAddr: string[]
-    testAddr: string[]
-    isHttps: boolean
-    sections: any
-    fetchNodes: any[];
+    /**
+     * 
+     * @param key 
+     * @param value 
+     */
+    setItem(key: string, value: string) {
+        this.storage.setItem(key, value);
+    }
+    /**
+     * 
+     * @param key 
+     */
+    removeItem(key: string) {
+        this.storage.removeItem(key);
+    }
+    /**
+     * 
+     * @param key 
+     * @returns 
+     */
+    getItem(key: string): Value<string> {
+        const value: Value<string> = { value: "", valid: false }
+        const text = this.storage.getItem(key);
+        if (text) {
+            value.valid = true;
+            value.value = text;
+        }
+        return value;
+    }
+    /**
+     * 
+     * @param key 
+     * @returns 
+     */
+    getValue<T>(key: string): Value<T> {
+        const value: Value<T> = { value: null as any, valid: false }
+        if (hasOwnProperty(this.value, key)) {
+            value.valid = true;
+            value.value = this.value[key];
+        }
+        return value
+    }
+    /**
+     * 
+     * @param value 
+     * @returns 
+     */
+    formatJson(value: any): Value<any> {
+        const result: Value<any> = { value: null, valid: false };
+        try {
+            result.value = value;
+            result.valid = true;
+            result.value = JSON.parse(value)
+        } catch (e) {
+            // TODO
+        }
+        return result
+    }
+    /**
+     * 
+     * @param key 
+     * @param value 
+     */
+    saveValue(key: string, value: string) {
+        this.setItem(key, value);
+        this.value[key] = value;
+    }
 
-}
-
-// 保存测试链
-export function saveSections(v: any) {
-    setItem('3', v)
-}
-//
-export function saveNode(k: string, v: any) {
-    setItem(k, v);
-}
-
-// 0 dataAddrs
-// 1 testAddrs
-// 2 isHttps
-// 3 sections 数组
-export function loadItem(): Config {
-    const config = <Config>{ dataAddr: [], testAddr: [], isHttps: false, sections: null, fetchNodes: [] }
-    for (let i = 0; i < storage.length; i++) {
-        const key = storage.key(i) as string
-        const value = storage.getItem(key)
-        if (value) {
-            let toJson: any = null;
-            try {
-                toJson = JSON.parse(value);
-            } catch (e) {
-                console.log(e);
-            }
-            // 
-            if (key.indexOf('sec') == 0) {
-                config.fetchNodes.push(JSON.parse(value))
-            }
-            // 处理初始化数据
-            switch (key) {
-                case "0":
-                    config.dataAddr = toJson;
-                    break;
-                case "1":
-                    config.testAddr = toJson;
-                    break;
-                case "2":
-                    config.isHttps = toJson;
-                    break;
-                case "3":
-                    config.sections = toJson;
-                    break;
-            }
+    constructor() {
+        const len = this.storage.length;
+        for (let i = 0; i < len; i++) {
+            const key = this.storage.key(i) as string
+            const value = this.getItem(key);
+            if (!value.valid) continue;
+            const formatRes = this.formatJson(value.value);
+            if (!formatRes.valid) continue;
+            this.value[key] = formatRes.value;
         }
     }
-    return config
 }
+
+
+const StorageInstance = new LocalStorage();
+
+export function useStorage(): LocalStorage {
+    return StorageInstance
+}
+

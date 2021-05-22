@@ -1,4 +1,5 @@
-import axios, { Method } from "axios";
+import axios, { AxiosRequestConfig, Method } from "axios";
+import { useStore } from '@/store/index'
 
 export interface RequestOp {
     url?: string
@@ -14,11 +15,33 @@ export interface Response {
     Code: string
     Data: any
     Success: boolean
+    Result: any
+    Message: string
 }
+
+const AxiosInstance = axios.create({
+    baseURL: "http://127.0.0.1:3000"
+})
+
+const store = useStore();
+
+console.log(store);
+
+AxiosInstance.interceptors.request.use((config: AxiosRequestConfig) => {
+    const len = store.state.data_addrs.length;
+    console.log("test");
+    for (let i = 0; i < len; i++) {
+        if (store.state.fetch_addrs[i].enable) {
+            config.baseURL = `http://${store.state.fetch_addrs[i].value}`
+            break
+        }
+    }
+    return config
+})
 
 // GET
 export function AxiosGet(config: RequestOp) {
-    axios({
+    AxiosInstance({
         url: config.url,
         method: 'GET',
         params: config.params
@@ -31,7 +54,7 @@ export function AxiosGet(config: RequestOp) {
 
 // POST
 export function AxiosPost(config: RequestOp) {
-    axios({
+    AxiosInstance({
         url: config.url,
         method: 'POST',
         params: config.params
@@ -44,7 +67,7 @@ export function AxiosPost(config: RequestOp) {
 
 // PUT
 export function AxiosPut(config: RequestOp) {
-    axios({
+    AxiosInstance({
         url: config.url,
         method: 'PUT',
         params: config.params
@@ -57,7 +80,7 @@ export function AxiosPut(config: RequestOp) {
 
 // DELETE
 export function AxiosDelete(config: RequestOp) {
-    axios({
+    AxiosInstance({
         url: config.url,
         method: 'DELETE',
         params: config.params

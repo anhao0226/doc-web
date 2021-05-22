@@ -1,5 +1,15 @@
 
 import { v4 as uuidv4 } from 'uuid';
+import SHA from 'sha.js'
+
+enum baseType {
+    ARRAY = '[object Array]',
+    STRING = '[object String]',
+    NUMBER = '[object Number]',
+    OBJECT = '[object Object]',
+    NULL = '[object Null]',
+    UNDEFINED = '[object Undefined]'
+}
 
 const type2Number = {
     '[object Array]': 0,
@@ -97,5 +107,13 @@ export function getUUID(): string {
     return uuidv4().toString()
 }
 
+
+/**
+ * sha512加密
+ */
+export function encryptionPassword(password: string): string {
+    const hash = SHA("sha512")
+    return hash.update(password).digest('hex').toString()
+}
 
 

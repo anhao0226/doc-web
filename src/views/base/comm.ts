@@ -1,12 +1,13 @@
 
 import { ref } from 'vue'
-import { fetchDocs } from './../services/doc'
-import { loadItem, Config } from './../libs/storage'
-import { InitAutoTest } from './automated/store'
+import { fetchDocs } from '../../services/doc'
+import { useStorage } from '../../libs/storage'
+import { InitAutoTest } from '../automated/store'
+import { data } from '../../store/test'
+// import { GConfig } from '@/store'
 // 加载配置
-const config = ref<Config>(loadItem());
 
-console.log(config.value.sections);
+const config = useStorage();
 InitAutoTest(config.value.sections, config.value.fetchNodes);
 // 记录每一层的个数
 export const depthSecCount = <number[]>[];
@@ -97,6 +98,11 @@ const MainMenuInfo = ref<State[]>([
     name: "test",
     display: false,
     zIndex: 1000,
+  },
+  {
+    name: 'user',
+    display: false,
+    zIndex: 1000
   }
 ])
 
@@ -138,7 +144,7 @@ function HandleConfig() {
 
 // 计算请求路径
 function Calculation(addr: string, url: string): string {
-  const http = config.value.isHttps ? 'https' : 'http'
+  const http = 'http'
   return `${http}://${addr}/${url}`
 }
 
@@ -184,6 +190,7 @@ function FetchComments() {
     url: `http://${addr[0]}/doc/v1/list`,
   }).then(res => {
     if (res.Success) {
+      console.log(JSON.stringify(res.Data))
       comments.value = formatComment(res.Data);
       CommentsLen.value = comments.value.length;
     }
@@ -191,7 +198,12 @@ function FetchComments() {
 }
 
 
-FetchComments();
+// FetchComments();
+
+comments.value = formatComment(data as any);
+
+
+
 
 
 

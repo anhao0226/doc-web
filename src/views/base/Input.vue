@@ -7,7 +7,7 @@
       >
         <input
           class="input-data"
-          type="text"
+          :type="type"
           required
           :value="modelValue"
           @input="$emit('update:modelValue', $event.target.value)"
@@ -22,27 +22,32 @@
   </div>
 </template>
 
-<script>
-import {} from "vue";
+<script lang='ts'>
+import { defineComponent } from "vue";
 
-export default {
-  name: "IInput",
+export default defineComponent({
   props: {
-    modelValue: String,
+    labelStyle: String,
     label: String,
-    labelStyle: {
-      type: String,
-      default: "",
+    modelValue: String,
+    type: {
+      default: 'text',
+      type: String
     },
     width: {
-      type: Number,
       default: 240,
-    },
+      type: Number
+    }
   },
-  setup() {
-    return {};
-  },
-};
+  emits: ["update:modelValue"],
+  setup(props:any) {
+
+    console.log(props);
+    return {
+
+    }
+  }
+})
 </script>
 
 <style scoped>

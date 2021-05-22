@@ -45,12 +45,12 @@ import {
   MainMenuChange,
 } from "./comm";
 import InputComponent from "./Input.vue";
-import { AxiosGeneral } from "./../libs/http";
+import { AxiosGeneral } from "../../libs/http";
 import { Method } from "node_modules/axios";
-import DrawerComponent from "./../components/Drawer.vue";
-import { Section } from "./automated/store/type";
-import { SNodeCountAdd } from "./automated/store";
-import { saveNode } from "./../libs/storage";
+import DrawerComponent from "../../components/Drawer.vue";
+import { Section } from "../automated/store/type";
+import { SNodeCountAdd } from "../automated/store";
+
 
 export default defineComponent({
   components: {
@@ -83,7 +83,7 @@ export default defineComponent({
 
       // 请求数据
       AxiosGeneral({
-        url: Calculation(config.value.testAddr[0], url),
+        url: Calculation(config.value.testAddr[0].value, url),
         method: method as Method,
         params: params,
         success: (data: any) => {
@@ -110,7 +110,7 @@ export default defineComponent({
           // 处理结果
           sec.result = { state: true, data: data };
 
-          saveNode(`sec${sec.id.toString()}`, JSON.stringify(sec));
+          //saveNode(`sec${sec.id.toString()}`, JSON.stringify(sec));
         },
         error: (err: any) => {
           console.log(err);

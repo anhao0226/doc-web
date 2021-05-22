@@ -1,18 +1,12 @@
-import { createApp, ref } from 'vue'
+import { App, createApp, ref } from 'vue'
 import './assets/icon/iconfont.css'
-import App from './App.vue'
+import MainApp from './App.vue'
 import router from './router/index'
+import { useStore } from './store/index'
 
-const app = createApp(App);
-
-interface ComponentArgs {
-    uid: number
-    state: boolean
-}
-
-// mixin
-app.mixin({
-    select: ref<ComponentArgs[]>([])
-})
+const app = createApp(MainApp);
 app.use(router);
+app.use({ install: (app: App) => {
+   console.log("test");
+}})
 app.mount('#app')

@@ -4,17 +4,20 @@
 export interface Config {
 
 }
-
-// 本地配置文件
+/**
+ * 
+ */
 export interface LocalConfig {
 
 }
-
-// 通用返回数据格式
+/**
+ * 
+ */
 export interface Value<T> {
-    valid: boolean
-    data: T
+    value: T;
+    valid?: boolean;
 }
+
 
 /*
   section 
