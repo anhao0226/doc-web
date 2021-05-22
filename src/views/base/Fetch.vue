@@ -44,7 +44,7 @@ import {
   MainMenuInfo,
   MainMenuChange,
 } from "./comm";
-import InputComponent from "./Input.vue";
+import InputComponent from "./input.vue";
 import { AxiosGeneral } from "../../libs/http";
 import { Method } from "node_modules/axios";
 import DrawerComponent from "../../components/Drawer.vue";
@@ -83,7 +83,7 @@ export default defineComponent({
 
       // 请求数据
       AxiosGeneral({
-        url: Calculation(config.value.testAddr[0].value, url),
+        url: url,
         method: method as Method,
         params: params,
         success: (data: any) => {

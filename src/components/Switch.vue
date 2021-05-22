@@ -16,21 +16,22 @@ import { defineComponent, ref, watch } from "vue";
 export default defineComponent({
   props: {
     modelValue: Boolean,
+    change: Function,
   },
-  emits: ["update:modelValue"],
+  emits: ["update:modelValue", "change"],
   setup(props: any, ctx: any) {
-
-    const state = ref<boolean>(props.modelValue);
+    const state = ref<boolean>(props.modelValue || false);
 
     watch(
       () => props.modelValue,
-      (newValue) => {
+      (newValue:boolean) => {
         state.value = newValue;
       }
     );
 
     const toggleState = () => {
       state.value = !state.value;
+      ctx.emit("change", state.value);
       ctx.emit("update:modelValue", state.value);
     };
     return {

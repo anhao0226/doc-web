@@ -17,11 +17,11 @@
 
 <script lang='ts'>
 import { defineComponent, ref } from "vue";
-import InputComponent from "../base/Input.vue";
+import InputComponent from "../base/input.vue";
 import { useRouter } from "vue-router";
 import { userLogin } from "@/services/user";
 import { useStorage } from "@/libs/storage";
-import { GConfig } from "@/store/index";
+import { useStore } from "@/store/index";
 export default defineComponent({
   components: {
     InputComponent: InputComponent,
@@ -31,6 +31,7 @@ export default defineComponent({
     const username = ref<string>("");
     const password = ref<string>("");
     const localStorage = useStorage();
+    const store = useStore();
 
     const userLoginHandler = () => {
       if (username.value.length > 0 && password.value.length > 0) {
@@ -41,28 +42,26 @@ export default defineComponent({
           .then((res) => {
             console.log(res);
             if (res.Success && res.Code == "0000") {
-              localStorage.saveValue("user", res.Result.user);
-              localStorage.saveValue("token", res.Result.token);
-              localStorage.saveValue("email", res.Result.email);
-              GConfig.value = {
-                dataAddrs: [],
-                fetchAddrs: [],
-                httpsEnable: false,
-                currFetchAddr: "",
-              };
+              
+              store.commit("user", res.Result.user).emit("user");
+              store.commit("token", res.Result.user).emit("token");
+              store.commit("email", res.Result.user).emit("email");
+
               res.Result.config.forEach((item: any) => {
                 switch (item.type) {
                   case "0":
-                    GConfig.value.dataAddrs.push({
+                    store.state.data_addrs.push({
                       value: item.text,
                       enable: item.enable == 0 ? false : true,
                     });
+                    store.emit("data_addrs");
                     break;
                   case "1":
-                    GConfig.value.fetchAddrs.push({
+                    store.state.fetch_addrs.push({
                       value: item.text,
                       enable: item.enable == 0 ? false : true,
                     });
+                    store.emit("fetch_addrs");
                     break;
                 }
               });

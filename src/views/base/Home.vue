@@ -37,9 +37,10 @@
 <script lang='ts'>
 import { defineComponent, onMounted, onUnmounted, ref } from "vue";
 import { comments, currClickIdx, MainMenuChange, MainMenuInfo } from "./comm";
-import SettingComponent from "./Setting.vue";
-import MenuComponent from "./Menu.vue";
-import SearchComponent from "./Search.vue";
+import SettingComponent from "./setting.vue";
+import MenuComponent from "./menu.vue";
+import SearchComponent from "@/views/base/search.vue";
+import MessageComponent from '@/views/base/message.vue'
 import FetchComponent from "./Fetch.vue";
 
 export default defineComponent({
@@ -48,6 +49,7 @@ export default defineComponent({
     MenuComponent,
     SearchComponent,
     FetchComponent,
+    MessageComponent,
   },
   setup() {
     let prev = 0;

@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from "vue";
+import { defineComponent, onMounted, reactive, ref, watch } from "vue";
 import { MainMenuInfo, } from "./views/base/comm";
 import { GBoxStateInfo, useStore } from "./store/index";
 
@@ -56,7 +56,7 @@ export default defineComponent({
     return {
       MainMenuInfo,
       GBoxStateInfo,
-      store
+      store,
     };
   },
 });

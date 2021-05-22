@@ -12,12 +12,13 @@ enum baseType {
 }
 
 const type2Number = {
-    '[object Array]': 0,
-    '[object String]': 1,
-    '[object Number]': 2,
-    '[object Object]': 3,
-    '[object Null]': 4,
-    '[object Undefined]': 5,
+    '[object String]': 0,
+    '[object Number]': 1,
+    '[object Boolean]': 2,
+    '[object Array]': 3,
+    '[object Object]': 4,
+    '[object Null]': 5,
+    '[object Undefined]': 6,
 }
 
 const mobilePrefix: string[] = [

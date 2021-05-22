@@ -2,66 +2,73 @@
   <DrawerComponent algin="right" v-model="MainMenuInfo[3].display" :width="400">
     <template v-slot:title>Setting</template>
     <template v-slot:content>
-      <div class="config-box">
-        <ul class="menu">
-          <li>
-            <span class="title">Data Addrs</span>
-            <i class="iconfont icon-add" @click="showInputBox(0)"></i>
-          </li>
-          <li class="add-input" v-show="inputState[0]">
-            <span>
-              <input type="text" v-model="inputValue[0]" />
-            </span>
-            <span @click="saveConfig(0)">save</span>
-          </li>
-          <li v-for="(item, index) in store.state.data_addrs" :key="index">
-            <span>{{ item.value }}</span>
-            <span class="menu__action">
+      <div class="setting">
+        <div class="config-box">
+          <ul class="menu">
+            <li>
+              <span class="title">Data Addrs</span>
+              <i class="iconfont icon-add" @click="showInputBox(0)"></i>
+            </li>
+            <li v-for="(item, index) in store.state.data_addrs" :key="index">
+              <span>{{ item.value }}</span>
+              <span class="menu__action">
+                <SwitchComponent
+                  v-model="item.enable"
+                  style="display: inline-block"
+                  @change="watchDataListStateHandler(index)"
+                ></SwitchComponent>
+                <i
+                  style="color: #f56c6c"
+                  class="iconfont icon-trash"
+                  @click="delConfig(0, index)"
+                ></i>
+              </span>
+            </li>
+            <li class="add-input" v-show="inputState[0]">
+              <span>
+                <input type="text" v-model="inputValue[0]" />
+              </span>
+              <span @click="saveConfig(0)">save</span>
+            </li>
+          </ul>
+        </div>
+        <div class="config-box">
+          <ul class="menu">
+            <li>
+              <span class="title">Fetch Addrs</span>
+              <i class="iconfont icon-add" @click="showInputBox(1)"></i>
+            </li>
+            <!-- https -->
+            <li>
+              <span>https</span>
               <SwitchComponent
-                v-model="item.enable"
-                style="display: inline-block"
+                v-model="store.state.https_enable"
+                @change="enableHttpsHandler"
               ></SwitchComponent>
-              <i
-                style="color: #f56c6c"
-                class="iconfont icon-trash"
-                @click="delConfig(0, index)"
-              ></i>
-            </span>
-          </li>
-        </ul>
-      </div>
-      <div class="config-box">
-        <ul class="menu">
-          <li>
-            <span class="title">Fetch Addrs</span>
-            <i class="iconfont icon-add" @click="showInputBox(1)"></i>
-          </li>
-          <!-- https -->
-          <li>
-            <span>https</span>
-            <SwitchComponent v-model="slideBtnState"></SwitchComponent>
-          </li>
-          <li class="add-input" v-show="inputState[1]">
-            <span>
-              <input type="text" v-model="inputValue[1]" />
-            </span>
-            <span @click="saveConfig(1)">save</span>
-          </li>
-          <li v-for="(item, index) in store.state.fetch_addrs" :key="index">
-            <span>{{ item.value }}</span>
-            <span class="menu__action">
-              <SwitchComponent
-                v-model="item.enable"
-                style="display: inline-block"
-              ></SwitchComponent>
-              <i
-                style="color: #f56c6c"
-                class="iconfont icon-trash"
-                @click="delConfig(1, index)"
-              ></i>
-            </span>
-          </li>
-        </ul>
+            </li>
+            <li v-for="(item, index) in store.state.fetch_addrs" :key="index">
+              <span>{{ item.value }}</span>
+              <span class="menu__action">
+                <SwitchComponent
+                  style="display: inline-block"
+                  v-model="item.enable"
+                  @change="watchFetchListStateHandler(index)"
+                ></SwitchComponent>
+                <i
+                  style="color: #f56c6c"
+                  class="iconfont icon-trash"
+                  @click="delConfig(1, index)"
+                ></i>
+              </span>
+            </li>
+            <li class="add-input" v-show="inputState[1]">
+              <span>
+                <input type="text" v-model="inputValue[1]" />
+              </span>
+              <span @click="saveConfig(1)">save</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </template>
   </DrawerComponent>
@@ -85,31 +92,16 @@ export default defineComponent({
     const localStorage = useStorage();
     const inputState = ref<boolean[]>([false, false]);
     const inputValue = ["", ""];
-    const slideBtnState = ref<boolean>(false);
-    const userId = localStorage.getValue<string>("user").value;
     const store = useStore();
-
-    slideBtnState.value = config.value.isHttps;
-
-    const slideBtnClickEvent = () => {
-      slideBtnState.value = !slideBtnState.value;
-      localStorage.saveValue("https_enable", `${slideBtnState.value}`);
-    };
+    const userId = store.state.user;
 
     const delConfig = (type: number, idx: number) => {
       switch (type) {
         case 0:
-          
-          // GConfig.value.dataAddrs.splice(idx, 1);
-          // store.commit("data_addrs", JSON.stringify(GConfig.value.dataAddrs))
-          // store.emit("data_addrs")
+          store.state.data_addrs.splice(idx, 1);
           break;
         case 1:
-          // GConfig.value.fetchAddrs.splice(idx, 1);
-          // localStorage.saveValue(
-          //   "fetch_addrs",
-          //   JSON.stringify(GConfig.value.fetchAddrs)
-          // );
+          store.state.fetch_addrs.splice(idx, 1);
           break;
       }
     };
@@ -124,7 +116,7 @@ export default defineComponent({
         text: inputValue[idx],
         user: userId,
         enable: 0,
-      }).then((res) => { 
+      }).then((res) => {
         console.log(res);
         if (res.Success && res.Code == "0000") {
           switch (idx) {
@@ -132,15 +124,13 @@ export default defineComponent({
               store.state.data_addrs.push({
                 value: inputValue[idx],
                 enable: false,
-              })
-              store.emit("data_addrs");
+              });
               break;
             case 1:
-               store.state.fetch_addrs.push({
+              store.state.fetch_addrs.push({
                 value: inputValue[idx],
                 enable: false,
-              })
-              store.emit("fetch_addrs");
+              });
               break;
           }
         }
@@ -149,17 +139,30 @@ export default defineComponent({
       inputState.value[idx] = false;
     };
 
+    const enableHttpsHandler = (value: boolean) => {
+      console.log(value);
+    };
+
+    const watchDataListStateHandler = (idx: number) => {
+      console.log(idx);
+    };
+
+    const watchFetchListStateHandler = (idx: number) => {
+      console.log(idx);
+    };
+
     return {
       inputState,
       showInputBox,
       saveConfig,
       inputValue,
       delConfig,
-      slideBtnState,
-      slideBtnClickEvent,
       MainMenuInfo,
       MainMenuChange,
       store,
+      enableHttpsHandler,
+      watchDataListStateHandler,
+      watchFetchListStateHandler,
     };
   },
 });
@@ -194,9 +197,15 @@ export default defineComponent({
   font-weight: 600;
 }
 
+.setting {
+  overflow-y: scroll;
+  height: 100%;
+}
+
 .config-box {
   min-height: 100px;
   padding: 12px 0 0 0;
+  overflow-y: scroll;
 }
 .slide_box {
   position: relative;

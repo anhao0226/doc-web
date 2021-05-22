@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig, Method } from "axios";
 import { useStore } from '@/store/index'
+import { Value } from "./type";
 
 export interface RequestOp {
     url?: string
@@ -23,23 +24,38 @@ const AxiosInstance = axios.create({
     baseURL: "http://127.0.0.1:3000"
 })
 
+
 const store = useStore();
 
-console.log(store);
 
 AxiosInstance.interceptors.request.use((config: AxiosRequestConfig) => {
-    const len = store.state.data_addrs.length;
-    console.log("test");
-    for (let i = 0; i < len; i++) {
-        if (store.state.fetch_addrs[i].enable) {
-            config.baseURL = `http://${store.state.fetch_addrs[i].value}`
-            break
-        }
-    }
+    const val = calculationRequestUrl();
+    if (val.valid) { config.baseURL = val.value }
     return config
 })
 
-// GET
+/**
+ * 
+ * @param params 
+ */
+export function calculationRequestUrl(): Value<string> {
+    const len = store.state.fetch_addrs.length;
+    const value:Value<string> = { value: '', valid: false }
+    for (let index = 0; index < len; index++) {
+        if (store.state.fetch_addrs[index].enable) {
+            value.valid = true;
+            const httpType = store.state.https_enable ? 'https' : 'http';
+            value.value = `${httpType}://${store.state.fetch_addrs[index].value}`;
+            break 
+        }
+    }
+    return value;
+}
+
+/**
+ * 
+ * @param config 
+ */
 export function AxiosGet(config: RequestOp) {
     AxiosInstance({
         url: config.url,

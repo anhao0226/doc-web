@@ -47,6 +47,11 @@
           ></i>
         </router-link>
 
+         <i
+          class="iconfont icon-form"
+          :style="{ color: MainMenuInfo[8].display ? '#1875f0' : '' }"
+          @click="MainMenuChange(8)"
+        ></i>
         <i>{{ CommentsLen }}</i>
       </ul>
     </div>
@@ -77,7 +82,7 @@ export default defineComponent({
   z-index: 2001;
 }
 .container {
-  width: 480px;
+  width: 600px;
   height: 60px;
   margin: 0 auto;
   background-color: rgba(255, 255, 255, 1);

@@ -8,7 +8,6 @@ import { data } from '../../store/test'
 // 加载配置
 
 const config = useStorage();
-InitAutoTest(config.value.sections, config.value.fetchNodes);
 // 记录每一层的个数
 export const depthSecCount = <number[]>[];
 
@@ -101,6 +100,11 @@ const MainMenuInfo = ref<State[]>([
   },
   {
     name: 'user',
+    display: false,
+    zIndex: 1000
+  },
+  {
+    name: "message",
     display: false,
     zIndex: 1000
   }

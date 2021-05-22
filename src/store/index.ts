@@ -1,63 +1,100 @@
 
 import { useStorage } from '@/libs/storage';
-import { ref, reactive, watch } from 'vue';
+import { ref, reactive, watch, watchEffect } from 'vue';
 import { SecInputValue } from "./../libs/type";
 import { Value } from '@/libs/type'
-import { hasOwnProperty } from '@/libs/utils';
+import { dataType, hasOwnProperty } from '@/libs/utils';
 
+type EventFunc = (value: any) => void
 
-declare interface StoreValue {
-    func?: any[]
+interface Events {
+    emits: EventFunc[];
+    auto: EventFunc[];
 }
 
 
 export class Store {
 
-    state = reactive<any>({})
+    state = Object.create({});
     indexes = ref<any>({});
-    events: StoreValue[] = [];
+    events: Events[] = [];
+    /**
+     * 
+     */
+    handleEvents(key: string, newValue: any) {
+        if (hasOwnProperty(this.indexes, key)) {
+            const eIndex = this.indexes[key];
+            if (this.events[eIndex] &&
+                this.events[eIndex].auto) {
+                this.events[eIndex].auto.forEach((fn: EventFunc) => {
+                    fn(newValue || this.state[key]);
+                })
+            }
+        }
+    }
+
+    /**
+     * 
+     */
+    watchEvent(key: string) {
+        switch (dataType(this.state[key])) {
+            case 0:
+            case 1:
+            case 2:
+                watch(() => this.state[key], (newValue: any) => {
+                    this.handleEvents(key, newValue);
+                })
+                break;
+            case 3:
+            case 4:
+                watch(this.state[key], (newValue: any) => {
+                    this.handleEvents(key, newValue);
+                })
+                break;
+        }
+    }
 
     constructor(init: any) {
         const keys = Object.keys(init);
+        const temp = Object.create({});
         keys.forEach((key: string, index: number) => {
-            this.state[key] = init[key];
+            temp[key] = init[key];
             this.indexes[key] = index;
         })
+        this.state = reactive(temp);
+        Object.keys(this.state).forEach((key: string) => {
+            this.watchEvent(key);
+        });
     }
     /**
     * 
     */
-    on(key: string, func: any) {
+    on(key: string, e: EventFunc, auto: boolean) {
         if (hasOwnProperty(this.indexes, key)) {
             const idx = this.indexes[key] as number;
             if (!this.events[idx]) {
-                this.events[idx] = { func: [] }
+                this.events[idx] = { emits: [], auto: [] }
             }
-            this.events[idx].func?.push(func)
+            auto ? (this.events[idx].auto.push(e)) : (this.events[idx].emits.push(e));
         }
     }
     /**
     * 
     */
-    commit(key: string, value: string) {
+    commit(key: string, value: string): Store {
         if (hasOwnProperty(this.state, key)) {
             this.state[key] = value;
-        }else {
-            console.error("key does not exist")   
+        } else {
+            console.error("key does not exist")
         }
+        return this;
     }
     /**
     * 
     */
     emit(key: string) { // 数据处理
         if (hasOwnProperty(this.indexes, key)) {
-            const idx = this.indexes[key];
-            const funcs = this.events[idx].func
-            if (funcs) {
-                funcs.forEach(fn => {
-                    fn(this.state[key]);
-                })
-            }
+            this.handleEvents(key, null);
         }
     }
 }
@@ -66,31 +103,40 @@ export class Store {
 const localStorage = useStorage()
 
 const storeInstance = new Store({
-    "user": localStorage.getValue("user").value,
-    "email": localStorage.getValue("email").value,
-    "token": localStorage.getValue("token").value,
-    "data_addrs": localStorage.getValue('data_addrs').value,
-    "fetch_addrs": localStorage.getValue('fetch_addrs').value,
-    "https_enable": localStorage.getValue<boolean>('https_enable').value,
+    user: localStorage.getValue("user").value,
+    email: localStorage.getValue("email").value,
+    token: localStorage.getValue("token").value,
+    data_addrs: localStorage.getValue('data_addrs').value || [],
+    fetch_addrs: localStorage.getValue('fetch_addrs').value || [],
+    https_enable: localStorage.getValue<boolean>('https_enable').value,
+    secs: localStorage.getValue('secs').value || []
 });
 
 // 
 storeInstance.on("user", (value: string) => {
     localStorage.setItem("user", value);
-})
+}, true)
 //
 storeInstance.on("email", (value: string) => {
     localStorage.setItem("email", value);
-})
+}, true)
 //
 storeInstance.on("token", (value: string) => {
     localStorage.setItem("token", value);
-})
+}, true)
 //
 storeInstance.on("data_addrs", (value: any) => {
-    localStorage.setItem("data_addrs", value);
-})
+    localStorage.setItem("data_addrs", JSON.stringify(value));
+}, true)
 //
+storeInstance.on("fetch_addrs", (value: any) => {
+    localStorage.setItem("fetch_addrs", JSON.stringify(value));
+}, true)
+//
+storeInstance.on("https_enable", (value: any) => {
+    localStorage.saveValue("https_enable", JSON.stringify(value))
+}, true)
+
 export function useStore(): Store {
     return storeInstance
 }

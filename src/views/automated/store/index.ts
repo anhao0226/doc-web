@@ -4,10 +4,11 @@ import { useStorage } from '../../../libs/storage'
 import { AxiosGeneral } from '../../../libs/http'
 import { InputValue, VerifyValue, BaseInfo, Section } from './type';
 import { Line } from './draw'
-// import { GConfig } from '@/store/index';
+import { useStore } from '@/store';
 
-// 加载配置
-const localStorage = useStorage();
+const store = useStore();
+const storage = useStorage();
+
 // cnavas 信息
 const CanvasState = { ctx: null, canvas: null }
 // 抽屉状态了
@@ -79,14 +80,18 @@ function SNewRootNode() {
     SRootNode.value.children.push(node);
     SNodeList.value.push(node);
 }
-// 保存节点
+/**
+ * 保存节点
+ */
 function SSaveNode() {
     currNode.request = SBaseInfo.value;
     currNode.input = SInputVals.value;
     currNode.output = SVerifyVals.value;
     saveNode();
 }
-// 
+/**
+ * 
+ */
 function saveNode() {
     const clearNode = (src: Section) => {
         for (let i = 0; i < src.children.length; i++) {
@@ -98,16 +103,24 @@ function saveNode() {
         }
     }
     clearNode(SRootNode.value);
-    localStorage.saveValue('secs', JSON.stringify(SRootNode.value))    
+    console.log("save node");
+    storage.saveValue('secs', JSON.stringify(SRootNode.value))
 }
-// 连接状态
+/**
+ * 
+ * @param to 
+ * @param add 
+ */
 function SDrawLink(to: { x: number, y: number }, add: { x: number, y: number }) {
     const cx = currNode.pos.sx + 25;
     const cy = currNode.pos.sy + 25;
     const line = new Line(CanvasState.ctx, cx + add.x, cy + add.y, to.x, to.y);
     line.renderAngle();
 }
-// 连接节点
+/**
+ * 
+ * @param item 
+ */
 function SLinked(item: Section) {
     const s = currNode;
     for (let i = 0; i < SRootNode.value.children.length; i++) {
@@ -229,8 +242,6 @@ export function RunSection() { Run(currNode) }
 //
 function Run(node: Section) {
     console.log(node);
-
-
     AxiosGeneral({
         url: Calculation("", node.request.url),
         method: node.request.method,
@@ -289,18 +300,18 @@ export function traverseSection(s: Section) {
         traverseSection(s.children[i]);
     }
 }
+
 // 对外提供初始化方法(外部调用)
-export function InitAutoTest(params: any, other: any[]) {
-    if (params && other) {
-        console.log("test init");
-        SRootNode.value = params;
-        for (let i = 0; i < other.length; i++) {
-            SRootNode.value.children.push(other[i]);
-            localStorage.removeItem(`sec${other[i].id}`)
-        }
+export function InitAutoTest() {
+    console.log(store.state.secs);
+
+    if (store.state.secs.children) {
+        SRootNode.value = store.state.secs;
         currNode = SRootNode.value;
         for (let i = 0; i < SRootNode.value.children.length; i++) {
             traverseSection(SRootNode.value.children[i]);
         }
     }
 }
+
+InitAutoTest();
