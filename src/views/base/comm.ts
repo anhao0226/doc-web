@@ -106,7 +106,7 @@ const MainMenuInfo = ref<State[]>([
   {
     name: "message",
     display: false,
-    zIndex: 1000
+    zIndex: 2002
   }
 ])
 

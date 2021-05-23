@@ -32,6 +32,7 @@
  <MenuComponent></MenuComponent>
  <SearchComponent></SearchComponent>
  <FetchComponent></FetchComponent>
+ <MessageComponent></MessageComponent>
 </template>
 
 <script lang='ts'>

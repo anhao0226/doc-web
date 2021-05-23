@@ -1,26 +1,35 @@
 <template>
   <!-- 用户登录 -->
   <div class="login-container">
-    <span>
-      <InputComponent label="Username" v-model="username"></InputComponent>
-    </span>
-    <span>
-      <InputComponent
-        label="Password"
-        v-model="password"
-        type="password"
-      ></InputComponent>
-    </span>
-    <span @click="userLoginHandler">Login</span>
+    <div class="user_info" v-if="loginState">
+      <span>{{userinfo.email}}</span>
+      <span @click="logoutHandler">logout</span>
+    </div>
+    <div class="user_login" v-else>
+      <span>
+        <InputComponent
+          label="Username"
+          v-model="username"
+          type="text"
+        ></InputComponent>
+      </span>
+      <span>
+        <InputComponent
+          label="Password"
+          v-model="password"
+          type="password"
+        ></InputComponent>
+      </span>
+      <span @click="userLoginHandler">Login</span>
+    </div>
   </div>
 </template>
 
 <script lang='ts'>
-import { defineComponent, ref } from "vue";
+import { defineComponent, onMounted, ref } from "vue";
 import InputComponent from "../base/input.vue";
 import { useRouter } from "vue-router";
 import { userLogin } from "@/services/user";
-import { useStorage } from "@/libs/storage";
 import { useStore } from "@/store/index";
 export default defineComponent({
   components: {
@@ -30,8 +39,16 @@ export default defineComponent({
     const router = useRouter();
     const username = ref<string>("");
     const password = ref<string>("");
-    const localStorage = useStorage();
     const store = useStore();
+    const userinfo = ref<{ email: string }>({ email: "" });
+    const loginState = ref<boolean>(false);
+
+    onMounted(() => {
+      if(store.state.token !== ""){
+        loginState.value = true;
+        userinfo.value.email = store.state.email;
+      }
+    });
 
     const userLoginHandler = () => {
       if (username.value.length > 0 && password.value.length > 0) {
@@ -42,11 +59,10 @@ export default defineComponent({
           .then((res) => {
             console.log(res);
             if (res.Success && res.Code == "0000") {
-              
               store.commit("user", res.Result.user).emit("user");
-              store.commit("token", res.Result.user).emit("token");
-              store.commit("email", res.Result.user).emit("email");
-
+              store.commit("token", res.Result.token).emit("token");
+              store.commit("email", res.Result.email).emit("email");
+              
               res.Result.config.forEach((item: any) => {
                 switch (item.type) {
                   case "0":
@@ -54,14 +70,12 @@ export default defineComponent({
                       value: item.text,
                       enable: item.enable == 0 ? false : true,
                     });
-                    store.emit("data_addrs");
                     break;
                   case "1":
                     store.state.fetch_addrs.push({
                       value: item.text,
                       enable: item.enable == 0 ? false : true,
                     });
-                    store.emit("fetch_addrs");
                     break;
                 }
               });
@@ -73,9 +87,16 @@ export default defineComponent({
           });
       }
     };
+
+    const logoutHandler = () => {
+      loginState.value = false;
+    }
     return {
+      loginState,
+      userinfo,
       username,
       password,
+      logoutHandler,
       userLoginHandler,
     };
   },
@@ -86,6 +107,11 @@ export default defineComponent({
 .login-container {
   width: 100%;
   height: 100%;
+}
+
+.user_login, .user_info {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -94,11 +120,12 @@ export default defineComponent({
   z-index: 4000;
   background-color: #fff;
 }
-.login-container span {
+
+.user_login span {
   padding: 6px 0;
 }
 
-.login-container span:last-child {
+.user_login span:last-child {
   background-color: cadetblue;
   width: 240px;
   text-align: center;

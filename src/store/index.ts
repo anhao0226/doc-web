@@ -1,6 +1,6 @@
 
 import { useStorage } from '@/libs/storage';
-import { ref, reactive, watch, watchEffect } from 'vue';
+import { ref, reactive, watch, watchEffect, nextTick } from 'vue';
 import { SecInputValue } from "./../libs/type";
 import { Value } from '@/libs/type'
 import { dataType, hasOwnProperty } from '@/libs/utils';
@@ -103,15 +103,37 @@ export class Store {
 const localStorage = useStorage()
 
 const storeInstance = new Store({
+    wsState: localStorage.getValue("ws_state").value || { message: {} },
     user: localStorage.getValue("user").value,
     email: localStorage.getValue("email").value,
     token: localStorage.getValue("token").value,
     data_addrs: localStorage.getValue('data_addrs').value || [],
     fetch_addrs: localStorage.getValue('fetch_addrs').value || [],
     https_enable: localStorage.getValue<boolean>('https_enable').value,
-    secs: localStorage.getValue('secs').value || []
+    secs: localStorage.getValue('secs').value || [],
+    chatBox: null,
+    ws_conn: null,
+    ws_chat_message: [],
 });
 
+if (storeInstance.state.user) {
+    const user = storeInstance.state.user;
+    storeInstance.state.ws_conn = new WebSocket(`ws://127.0.0.1:3000/ws?user=${user}`)
+}
+//
+storeInstance.on("wsState", (value: any) => {
+    if (storeInstance.state.chatBox) {
+        nextTick(() => {
+            const h = (storeInstance.state.chatBox).scrollHeight;
+            storeInstance.state.chatBox.scrollTop = h;
+        })
+    }
+}, true)
+
+//
+storeInstance.on("wsState", (value: any) => {
+    localStorage.saveValue("ws_state", JSON.stringify(value));
+}, true)
 // 
 storeInstance.on("user", (value: string) => {
     localStorage.setItem("user", value);

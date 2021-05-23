@@ -41,14 +41,14 @@
 
          <router-link :to="{ name: 'login' }">
           <i
-            class="iconfont icon-wenjuan"
+            class="iconfont icon-smile"
             :style="{ color: MainMenuInfo[7].display ? '#1875f0' : '' }"
             @click="MainMenuChange(7)"
           ></i>
         </router-link>
 
          <i
-          class="iconfont icon-form"
+          class="iconfont icon-comment"
           :style="{ color: MainMenuInfo[8].display ? '#1875f0' : '' }"
           @click="MainMenuChange(8)"
         ></i>
