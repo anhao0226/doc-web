@@ -75,6 +75,10 @@ class LocalStorage {
         this.value[key] = value;
     }
 
+    reset(){
+        console.log("reset");
+    }
+
     constructor() {
         const len = this.storage.length;
         for (let i = 0; i < len; i++) {
@@ -87,6 +91,7 @@ class LocalStorage {
         }
     }
 }
+
 
 
 const StorageInstance = new LocalStorage();

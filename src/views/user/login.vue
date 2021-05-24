@@ -4,6 +4,7 @@
     <div class="user_info" v-if="loginState">
       <span>{{userinfo.email}}</span>
       <span @click="logoutHandler">logout</span>
+      <router-link :to="{ name: 'register'}"> Register</router-link>
     </div>
     <div class="user_login" v-else>
       <span>

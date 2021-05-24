@@ -1,22 +1,16 @@
 <template>
   <div class="input">
     <div class="input-wrapper">
-      <div
-        class="input-container"
-        :style="`width:${width}px`"
-      >
+      <div class="input-container" :style="`width:${width}px`">
         <input
           class="input-data"
           :type="type"
           required
           :value="modelValue"
           @input="$emit('update:modelValue', $event.target.value)"
-        >
-        <div class="underline"></div>
-        <label
-          class="input-label"
-          :style="labelStyle"
-        >{{ label }}</label>
+        />
+        <div :class="['underline', color ? 'success': '']"></div>
+        <label class="input-label" :style="labelStyle">{{ label }}</label>
       </div>
     </div>
   </div>
@@ -29,25 +23,24 @@ export default defineComponent({
   props: {
     labelStyle: String,
     label: String,
+    color: Boolean,
     modelValue: String,
+
     type: {
-      default: 'text',
-      type: String
+      default: "text",
+      type: String,
     },
     width: {
       default: 240,
-      type: Number
-    }
+      type: Number,
+    },
   },
   emits: ["update:modelValue"],
-  setup(props:any) {
-
+  setup(props: any) {
     console.log(props);
-    return {
-
-    }
-  }
-})
+    return {};
+  },
+});
 </script>
 
 <style scoped>
@@ -117,6 +110,10 @@ export default defineComponent({
   background: #5d6d75;
   transform: scaleX(0);
   transition: all 0.2s ease;
+}
+
+.input-container .success::before {
+  background: brown;
 }
 
 .input-data:focus ~ .underline::before,

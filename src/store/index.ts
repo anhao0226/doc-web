@@ -116,9 +116,29 @@ const storeInstance = new Store({
     ws_chat_message: [],
 });
 
+export function calculationRequestUrl(protocol: string): Value<string> {
+    const len = storeInstance.state.fetch_addrs.length;
+    const value:Value<string> = { value: '', valid: false }
+    for (let index = 0; index < len; index++) {
+        if (storeInstance.state.fetch_addrs[index].enable) {
+            value.valid = true;
+            let httpType = storeInstance.state.https_enable ? 'https' : 'http';
+            if (protocol) { httpType = protocol }
+            value.value = `${httpType}://${storeInstance.state.fetch_addrs[index].value}`;
+            break;
+        }
+    }
+    return value;
+}
+
 if (storeInstance.state.user) {
     const user = storeInstance.state.user;
-    storeInstance.state.ws_conn = new WebSocket(`ws://127.0.0.1:3000/ws?user=${user}`)
+    const finUrl = `${calculationRequestUrl("ws").value}/ws?user=${user}`;
+    try {
+        storeInstance.state.ws_conn = new WebSocket(finUrl);
+    }catch(e: any) {
+        // TODO
+    }
 }
 //
 storeInstance.on("wsState", (value: any) => {

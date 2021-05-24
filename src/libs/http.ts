@@ -1,6 +1,7 @@
-import axios, { AxiosRequestConfig, Method } from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import { useStore } from '@/store/index'
 import { Value } from "./type";
+
 
 export interface RequestOp {
     url?: string
@@ -20,8 +21,23 @@ export interface Response {
     Message: string
 }
 
+function runEnv(): string | undefined {
+    return process.env.NODE_ENV
+}
+
+// 开发环境
+const DEVELOPMENT_BASE_URL = "http://47.98.203.193:3000/";
+// 生产环境
+const PRODUCTION_BASE_URL = "http://127.0.0.1:3000/";
+
+
+const BASE_URL = (runEnv() != undefined && runEnv() == 'development')
+    ? PRODUCTION_BASE_URL
+    : DEVELOPMENT_BASE_URL;
+
+
 const AxiosInstance = axios.create({
-    baseURL: "http://127.0.0.1:3000"
+    baseURL: BASE_URL
 })
 
 
@@ -29,8 +45,9 @@ const store = useStore();
 
 
 AxiosInstance.interceptors.request.use((config: AxiosRequestConfig) => {
-    const val = calculationRequestUrl();
+    const val = calculationRequestUrl("");
     if (val.valid) { config.baseURL = val.value }
+    else {config.baseURL = BASE_URL }
     return config
 })
 
@@ -38,13 +55,14 @@ AxiosInstance.interceptors.request.use((config: AxiosRequestConfig) => {
  * 
  * @param params 
  */
-export function calculationRequestUrl(): Value<string> {
+export function calculationRequestUrl(protocol: string): Value<string> {
     const len = store.state.fetch_addrs.length;
     const value:Value<string> = { value: '', valid: false }
     for (let index = 0; index < len; index++) {
         if (store.state.fetch_addrs[index].enable) {
             value.valid = true;
-            const httpType = store.state.https_enable ? 'https' : 'http';
+            let httpType = store.state.https_enable ? 'https' : 'http';
+            if (protocol) { httpType = protocol }
             value.value = `${httpType}://${store.state.fetch_addrs[index].value}`;
             break 
         }

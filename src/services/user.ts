@@ -78,7 +78,7 @@ export function sendMessage(
     })
 }
 /**
- * 
+ * 用户好友
  */
 export function userBuddys(
     params: {
@@ -88,6 +88,51 @@ export function userBuddys(
     return new Promise((resolve: any, reject: any) => {
         AxiosGet({
             url: 'user/buddy',
+            params: params,
+            success: (data: any) => {
+                resolve(data);
+            },
+            error: (err: Error) => {
+                reject(err);
+            }
+        })
+    })
+}
+
+/**
+ *  
+ */
+ export function userIsExit(
+    params: {
+        email: string
+    }
+): Promise<Response> {
+    return new Promise((resolve: any, reject: any) => {
+        AxiosGet({
+            url: 'user/isexit',
+            params: params,
+            success: (data: any) => {
+                resolve(data);
+            },
+            error: (err: Error) => {
+                reject(err);
+            }
+        })
+    })
+}
+
+/**
+ * 
+ */
+ export function userRegister(
+    params: {
+        email: string
+        password: string
+    }
+): Promise<Response> {
+    return new Promise((resolve: any, reject: any) => {
+        AxiosPost({
+            url: 'user/register',
             params: params,
             success: (data: any) => {
                 resolve(data);
