@@ -7,14 +7,14 @@ import { data } from '../../store/test'
 
 export const menuState = ref<{ display: boolean, icon: string[], name?: string }[]>([
   { 
-    name: "menu",
+    name: "notice",
     display: false,
-    icon: ['iconfont', 'icon-list'],
+    icon: ['iconfont', 'icon-xiaoxizhongxin'],
   },
   {
     name: "setting",
     display: false,
-    icon: ['iconfont', 'icon-settings'],
+    icon: ['iconfont', 'icon-shezhi'],
   },
   {
     name: "message",
@@ -94,94 +94,6 @@ interface State {
   zIndex: number
 }
 
-// 用于管理图层信息
-let currIndex = 1000;
-// 主菜单信息
-const MainMenuInfo = ref<State[]>([
-  {
-    name: "self",
-    display: true,
-    zIndex: 1010,
-  },
-  {
-    name: "home",
-    display: false,
-    zIndex: 1000,
-  },
-  {
-    name: "menu",
-    display: false,
-    zIndex: 1000,
-  },
-  {
-    name: "setting",
-    display: false,
-    zIndex: 1000,
-  },
-  {
-    name: "from",
-    display: false,
-    zIndex: 1000,
-  },
-  {
-    name: "search",
-    display: false,
-    zIndex: 1000,
-  },
-  {
-    name: "test",
-    display: false,
-    zIndex: 1000,
-  },
-  {
-    name: 'user',
-    display: false,
-    zIndex: 1000
-  },
-  {
-    name: "message",
-    display: false,
-    zIndex: 2002
-  },
-  {
-    name: "notice",
-    display: false,
-    zIndex: 2002
-  }
-])
-
-
-
-
-// 管理主菜单对应的功能块(display or hidden)
-function MainMenuChange(index: number, from?: number) {
-
-  if (from == 10000) {
-    MainMenuInfo.value[index].display = true
-    return
-  }
-
-  switch (index) {
-    case 1: // home
-      for (let i = 1; i < MainMenuInfo.value.length; i++) {
-        MainMenuInfo.value[index].display = !MainMenuInfo.value[index].display
-      }
-      break
-  }
-
-  if (!MainMenuInfo.value[index].display) {
-    // 最后打开的图层处于最上层
-    MainMenuInfo.value[index].zIndex = currIndex++
-  } else {
-    // 恢复初始图层
-    MainMenuInfo.value[index].zIndex = 1000
-  }
-
-  MainMenuInfo.value[index].display = !MainMenuInfo.value[index].display
-
-}
-
-//
 function HandleConfig() {
   console.log("config")
 }
@@ -201,9 +113,6 @@ export {
   comments,
   currClickIdx,
   config,
-  MainMenuInfo,
-  // function
-  MainMenuChange,
   Calculation,
   FetchComments,
   HandleConfig,

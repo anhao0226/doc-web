@@ -32,7 +32,7 @@
 
 <script lang='ts'>
 import { defineComponent, onMounted, onUnmounted, ref } from "vue";
-import { comments, currClickIdx, MainMenuChange, MainMenuInfo } from "./comm";
+import { comments, currClickIdx, menuState } from "./comm";
 
 
 export default defineComponent({
@@ -77,9 +77,8 @@ export default defineComponent({
     });
 
     const ClickEvent = (idx: number) => {
-      console.log(idx);
       currClickIdx.value = idx;
-      MainMenuChange(4, 10000);
+      menuState.value[4].display = true;
     };
 
     return {

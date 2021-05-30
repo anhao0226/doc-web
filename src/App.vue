@@ -13,7 +13,6 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, reactive, ref, watch } from "vue";
-import { MainMenuInfo, } from "./views/base/comm";
 import { GBoxStateInfo, useStore } from "./store/index";
 
 import HeaderComponent from "./views/base/header.vue";
@@ -54,7 +53,6 @@ export default defineComponent({
     //   }, 100);
     // };
     return {
-      MainMenuInfo,
       GBoxStateInfo,
       store,
     };

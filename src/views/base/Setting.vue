@@ -78,13 +78,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
-import {
-  menuState,
-  config,
-  FetchComments,
-  MainMenuInfo,
-  MainMenuChange,
-} from "@/views/base/comm";
+import { menuState } from "@/views/base/comm";
 import { useStorage } from "../../libs/storage";
 import DrawerComponent from "../../components/Drawer.vue";
 import SwitchComponent from "../../components/Switch.vue";
@@ -164,8 +158,6 @@ export default defineComponent({
       saveConfig,
       inputValue,
       delConfigHandler,
-      MainMenuInfo,
-      MainMenuChange,
       store,
     };
   },

@@ -40,13 +40,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
-import {
-  currClickIdx,
-  comments,
-  MainMenuInfo,
-  MainMenuChange,
-  menuState,
-} from "@/views/base/comm";
+import { currClickIdx, comments, menuState } from "@/views/base/comm";
 import InputComponent from "./input.vue";
 import { AxiosGeneral } from "../../libs/http";
 import { Method } from "node_modules/axios";
@@ -129,8 +123,6 @@ export default defineComponent({
       values,
       result,
       FetchResult,
-      MainMenuInfo,
-      MainMenuChange,
     };
   },
 });

@@ -161,7 +161,11 @@ storeInstance.plugin((store: Store) => {
                     reconnectTimeout: 2000
                 });
                 ws.subscribe((e: MessageEvent) => {
-                    store.state.notice.push(e);
+                    const msg = JSON.parse(e.data);
+                    switch (msg.Type) {
+                        case 0:
+                            store.state.notice.push(msg);
+                    }
                 })
                 store.state.ws_conn = ws;
             } catch (e: any) {

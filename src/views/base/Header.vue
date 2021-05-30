@@ -12,7 +12,9 @@
       <ul class="list-box">
         <!-- notice -->
         <li>
-          <i :class="menuState[0].icon" @click="openDrawerHandler(0)"></i>
+          <Badeg v-model="noticeCount">
+            <i :class="menuState[0].icon" @click="openDrawerHandler(0)"></i>
+          </Badeg>
         </li>
         <!-- setting -->
         <li>
@@ -48,13 +50,15 @@
 </template>
 
 <script lang='ts'>
-import { defineComponent, ref } from "vue";
-import { MainMenuChange, CommentsLen, MainMenuInfo, menuState } from "./comm";
+import { defineComponent, ref, watch } from "vue";
+import { CommentsLen, menuState } from "./comm";
 import NoticeComponent from "@/views/base/notice.vue";
 import SettingComponent from "@/views/base/setting.vue";
 import MessageComponent from "@/views/base/message.vue";
 import SearchComponent from "@/views/base/search.vue";
 import FetchComponent from "@/views/base/fetch.vue";
+import Badeg from '@/views/base/badge.vue'
+import { useStore } from '@/store'
 
 export default defineComponent({
   components: {
@@ -63,18 +67,25 @@ export default defineComponent({
     MessageComponent,
     SearchComponent,
     FetchComponent,
+    Badeg,
   },
   setup() {
+
+    const store = useStore();
+    const noticeCount = ref<number>(0);
     const openDrawerHandler = (i: number) => {
       menuState.value[i].display = !menuState.value[i].display;
     };
 
+    watch(store.state.notice, () => {
+      noticeCount.value++;
+    })
+
     return {
+      noticeCount,
       menuState,
       openDrawerHandler,
-      MainMenuChange,
-      CommentsLen,
-      MainMenuInfo,
+      CommentsLen,      
     };
   },
 });
@@ -118,5 +129,25 @@ export default defineComponent({
 
 .list-box li i {
   font-size: 1.8rem;
+}
+
+.badge {
+  position: relative;
+  /* background-color: cadetblue; */
+  padding: 0 4px 0 4px;
+}
+
+.badge sub {
+  position: absolute;
+  right: -10px;
+  top: -4px;
+  width: 28px;
+  height: 16px;
+  text-align: center;
+  line-height: 16px;
+  border-radius: 15px;
+  background-color: #F56C6C;
+  color: #fff;
+  font-size: 0.7rem;
 }
 </style>
