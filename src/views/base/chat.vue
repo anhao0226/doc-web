@@ -3,10 +3,11 @@
     <div class="title">
       <i class="iconfont icon-arrow-left-bold" @click="toBuddyPageHandler"></i>
       <span>{{ chatState.email }}</span>
+      <span>{{ chatState.input ? "正在输入" : "" }}</span>
       <i class="iconfont icon-more"></i>
     </div>
     <ul class="message__list">
-      <li v-for="(item, index) in store.state.ws_chat_message" :key="index">
+      <li v-for="(item, index) in store.state.chat_msg.value" :key="index">
         <div class="left" v-if="item.type == 1">
           <span>{{ item.text }}</span>
         </div>
@@ -16,17 +17,37 @@
       </li>
     </ul>
     <div class="send__box">
-      <input type="text" v-model="send_text" />
+      <input
+        type="text"
+        v-model="send_text"
+        @keyup.enter="sendMessageHandler"
+        @input="watchTextHandler"
+      />
       <i class="iconfont icon-icon_fabu" @click="sendMessageHandler"></i>
     </div>
   </div>
 </template>
 
+
+
 <script lang='ts'>
-import { defineComponent, onMounted, ref } from "vue";
+interface Message {
+  Type: number;
+  Text: string;
+  Sender: string;
+}
+
+interface MessageState {
+  type: number;
+  text: string;
+}
+
+import { defineComponent, onMounted, ref, watch } from "vue";
 import { useStore } from "@/store/index";
-import { sendMessage } from "@/services/user";
+import { sendMessage, pullMessage } from "@/services/user";
 import { hasOwnProperty } from "@/libs/utils";
+import { Queue, MessageType } from "@/libs/type";
+import __WebSocket from "@/libs/websocket";
 export default defineComponent({
   props: ["chatState", "close"],
   emits: ["close"],
@@ -34,24 +55,69 @@ export default defineComponent({
   setup(props: any, ctx: any) {
     const store = useStore();
     const user = store.state.user;
+    const userID = store.state.userID;
+    const lastRecvTime = store.state.last_recv_time;
     const send_text = ref("");
     let receiver = "";
+    let timer: any = null;
 
     onMounted(() => {
       receiver = props.chatState.object;
-      store.state.ws_chat_message = [];
+      (store.state.chat_msg as Queue<any>).reset();
       store.state.chatBox = document.getElementsByClassName("message__list")[0];
-      if (hasOwnProperty(store.state.wsState.message, receiver)) {
-        store.state.wsState.message[
-          receiver
-        ].forEach((msg: { type: number; text: string }) => {
-          store.state.ws_chat_message.push(msg)
-        });
+      if (hasOwnProperty(store.state.chat_history.message, receiver)) {
+        store.state.chat_history.message[receiver].forEach(
+          (msg: MessageState) => {
+            (store.state.chat_msg as Queue<any>).push(msg);
+          }
+        );
+      } else {
+        store.state.chat_history.message[receiver] = [];
       }
+      pullHistoryMessageHandler();
     });
+
+    const watchTextHandler = () => {
+      if (store.state.ws_conn && !timer) {
+        (store.state.ws_conn as __WebSocket).send(
+          JSON.stringify({
+            Type: MessageType.InputNotice,
+            Text: "",
+            Sender: user,
+            State: 0,
+            Receiver: receiver,
+          })
+        );
+        timer = setTimeout(() => {
+          clearTimeout(timer);
+          timer = null;
+        }, 2000);
+      }
+    };
 
     const toBuddyPageHandler = () => {
       ctx.emit("close", true);
+    };
+
+    const pullHistoryMessageHandler = () => {
+      pullMessage({
+        sender: receiver,
+        user_id: userID,
+        receiver: user,
+        time: lastRecvTime,
+      }).then((res) => {
+        if (res && res.Success && res.Code == "0000") {
+          if (res.Result) {
+            res.Result.forEach((msg: any) => {
+              (store.state.chat_msg as Queue<any>).push({
+                type: 1,
+                text: msg.text,
+              });
+            });
+          }
+        }
+        console.log(res);
+      });
     };
 
     const sendMessageHandler = () => {
@@ -59,25 +125,14 @@ export default defineComponent({
         sender: user,
         receiver: receiver,
         text: send_text.value,
-      })
-        .then((res) => {
-          if (res.Success && res.Code == "0000") {
-            if (!hasOwnProperty(store.state.wsState.message, receiver)) {
-              store.state.wsState.message[receiver] = [];
-            }
-            store.state.ws_chat_message.push({
-               type: 0,
-               text: send_text.value,
-            })
-            store.state.wsState.message[receiver].push({
-              type: 0,
-              text: send_text.value,
-            });
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      }).then((res) => {
+        if (res.Success && res.Code == "0000") {
+          const msg = { type: 0, text: send_text.value };
+          (store.state.chat_msg as Queue<any>).push(msg);
+          store.state.chat_history.message[receiver].push(msg);
+          send_text.value = "";
+        }
+      });
     };
 
     return {
@@ -87,6 +142,7 @@ export default defineComponent({
       send_text,
       sendMessageHandler,
       toBuddyPageHandler,
+      watchTextHandler,
     };
   },
 });
@@ -159,12 +215,16 @@ export default defineComponent({
 }
 
 .message__list li .left span {
+  max-width: 200px;
   display: inline-block;
   padding: 10px 10px;
   color: black;
   background-color: #eee;
   border-radius: 3px;
   position: relative;
+  /* text-align: left; */
+  word-wrap: break-word;
+  word-break: break-all;
 }
 
 .message__list li .left span::after {
@@ -176,15 +236,17 @@ export default defineComponent({
   border-width: 5px;
   border-style: solid;
   border-color: #eeeeee #eeeeee transparent transparent;
-  left: -5px;
+  left: -6px;
 }
 
+/* right */
 .message__list li .right {
   width: 100%;
   text-align: right;
 }
 
 .message__list li .right span {
+  max-width: 200px;
   display: inline-block;
   padding: 10px 10px;
   color: black;
@@ -192,6 +254,9 @@ export default defineComponent({
   color: aliceblue;
   border-radius: 3px 0 3px 3px;
   position: relative;
+  word-wrap: break-word;
+  word-break: break-all;
+  text-align: left;
 }
 
 .message__list li .right span::after {
@@ -203,6 +268,6 @@ export default defineComponent({
   border-width: 5px;
   border-style: solid;
   border-color: #409eff transparent transparent #409eff;
-  right: -5px;
+  right: -4px;
 }
 </style>

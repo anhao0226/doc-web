@@ -2,7 +2,7 @@
   <!-- MainMenuInfo[8].display -->
   <DrawerCompoment
     :zIndex="3000"
-    v-model="MainMenuInfo[8].display"
+    v-model="menuState[menuIdx].display"
     algin="right"
     :width="300"
   >
@@ -18,7 +18,7 @@
           {{ item.email }}
         </li>
       </ul>
-      <!-- 消息发送框 -->
+
       <ChatComponent
         :chatState="chatState"
         @close="showBuddyPageHandler"
@@ -30,74 +30,83 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, ref } from "vue";
-import { MainMenuInfo } from "./comm";
+import { menuState } from "@/views/base/comm";
 import { useStore } from "../../store/index";
 import DrawerCompoment from "../../components/Drawer.vue";
 import { userBuddys } from "@/services/user";
 import ChatComponent from "./chat.vue";
+import { NoticeState, ChatMessage } from "@/libs/type";
 import { hasOwnProperty } from "@/libs/utils";
-
-interface State {
-  type: number;
-  buddy: string;
-}
+import __WebSocket from "@/libs/websocket";
 
 interface Buddy {
   email: string;
   object: string;
   uid: string;
-}
-
-interface Message {
-  Type: number;
-  Text: string;
-  Sender: string;
+  input: boolean;
 }
 
 export default defineComponent({
+  props: ["index"],
   components: {
     DrawerCompoment,
     ChatComponent,
   },
-  setup() {
+  setup(props: any) {
     const text = ref<string>("");
     const store = useStore();
     const user = store.state.user;
-    const chatState = ref<Buddy>({ email: "", object: "", uid: "" });
+    const menuIdx = ref<number>(props.index); 
+
+    const chatState = ref<Buddy>({
+      email: "",
+      object: "",
+      uid: "",
+      input: false,
+    });
+
     const buddys = ref<Buddy[]>([]);
     const showChatBox = ref<boolean>(false);
+    let timer: any = null;
 
-    // 消息监听
-    if (store.state.ws_conn as WebSocket) {
-      (store.state.ws_conn as WebSocket).onmessage = function (event: any) {
-        const msg: Message = JSON.parse(event.data);
-        if (!hasOwnProperty(store.state.wsState.message, msg.Sender)) {
-          store.state.wsState.message[msg.Sender] = [];
-        }
-        //
-        store.state.ws_chat_message.push({
-          type: 1,
-          text: msg.Text,
-        });
-        //
-        store.state.wsState.message[msg.Sender].push({
-          type: 1,
-          text: msg.Text,
-        });
-      };
+    if (store.state.ws_conn as __WebSocket) {
+      (store.state.ws_conn as __WebSocket).subscribe((e: MessageEvent) => {
+        store.state.last_recv_time = new Date().toUTCString();
+        const msg: ChatMessage = JSON.parse(e.data);
+        handleMessageHandler(msg);
+      });
     }
-    //
-    const fetchBuddyListHandler = () => {
-      userBuddys({ user: user })
-        .then((res) => {
-          console.log(res);
-          if (res.Success && res.Code == "0000") {
-            buddys.value = res.Result;
+
+    const handleMessageHandler = (msg: ChatMessage) => {
+      switch (msg.Type) {
+        case 0: {
+          const m = { type: 1, text: msg.Text };
+          if (msg.Sender === chatState.value.object) {
+            store.state.chat_msg.push(m);
+            store.state.chat_history.message[chatState.value.object].push(m);
           }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+          break;
+        }
+        case 1:
+          if (msg.Sender == chatState.value.object) {
+            chatState.value.input = true;
+            if (timer) {
+              clearTimeout(timer);
+            }
+            timer = setTimeout(() => {
+              chatState.value.input = false;
+            }, 3000);
+          }
+          break;
+      }
+    };
+
+    const fetchBuddyListHandler = () => {
+      userBuddys({ user: user }).then((res) => {
+        if (res.Success && res.Code == "0000") {
+          buddys.value = res.Result;
+        }
+      });
     };
 
     onMounted(() => {
@@ -118,7 +127,8 @@ export default defineComponent({
       text,
       store,
       buddys,
-      MainMenuInfo,
+      menuIdx,
+      menuState,
       chatState,
       showChatBox,
       changeChatStateHandler,

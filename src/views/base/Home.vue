@@ -28,30 +28,15 @@
      </div>
    </a>
  </div>
- <SettingComponent></SettingComponent>
- <MenuComponent></MenuComponent>
- <SearchComponent></SearchComponent>
- <FetchComponent></FetchComponent>
- <MessageComponent></MessageComponent>
 </template>
 
 <script lang='ts'>
 import { defineComponent, onMounted, onUnmounted, ref } from "vue";
 import { comments, currClickIdx, MainMenuChange, MainMenuInfo } from "./comm";
-import SettingComponent from "./setting.vue";
-import MenuComponent from "./menu.vue";
-import SearchComponent from "@/views/base/search.vue";
-import MessageComponent from '@/views/base/message.vue'
-import FetchComponent from "./Fetch.vue";
+
 
 export default defineComponent({
-  components: {
-    SettingComponent,
-    MenuComponent,
-    SearchComponent,
-    FetchComponent,
-    MessageComponent,
-  },
+  components: {},
   setup() {
     let prev = 0;
     let timer: any = null;

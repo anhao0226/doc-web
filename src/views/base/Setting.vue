@@ -1,5 +1,9 @@
 <template>
-  <DrawerComponent algin="right" v-model="MainMenuInfo[3].display" :width="400">
+  <DrawerComponent
+    algin="right"
+    v-model="menuState[menuIdx].display"
+    :width="400"
+  >
     <template v-slot:title>Setting</template>
     <template v-slot:content>
       <div class="setting">
@@ -20,7 +24,7 @@
                 <i
                   style="color: #f56c6c"
                   class="iconfont icon-trash"
-                  @click="delConfig(0, index)"
+                  @click="delConfigHandler(0, index, item.uid)"
                 ></i>
               </span>
             </li>
@@ -43,7 +47,6 @@
               <span>https</span>
               <SwitchComponent
                 v-model="store.state.https_enable"
-                @change="enableHttpsHandler"
               ></SwitchComponent>
             </li>
             <li v-for="(item, index) in store.state.fetch_addrs" :key="index">
@@ -52,12 +55,11 @@
                 <SwitchComponent
                   style="display: inline-block"
                   v-model="item.enable"
-                  @change="watchFetchListStateHandler(index)"
                 ></SwitchComponent>
                 <i
                   style="color: #f56c6c"
                   class="iconfont icon-trash"
-                  @click="delConfig(1, index)"
+                  @click="delConfigHandler(1, index, item.uid)"
                 ></i>
               </span>
             </li>
@@ -75,35 +77,51 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
-import { config, FetchComments, MainMenuInfo, MainMenuChange } from "./comm";
+import { defineComponent, ref, watch } from "vue";
+import {
+  menuState,
+  config,
+  FetchComments,
+  MainMenuInfo,
+  MainMenuChange,
+} from "@/views/base/comm";
 import { useStorage } from "../../libs/storage";
 import DrawerComponent from "../../components/Drawer.vue";
 import SwitchComponent from "../../components/Switch.vue";
-import { addUserConfig } from "@/services/user";
+import { addUserConfig, delUserConfig } from "@/services/user";
 import { useStore } from "@/store/index";
 
 export default defineComponent({
+  props: ["index"],
   components: {
     DrawerComponent,
     SwitchComponent,
   },
-  setup() {
+  setup(props: any) {
+    console.log(props);
     const localStorage = useStorage();
     const inputState = ref<boolean[]>([false, false]);
     const inputValue = ["", ""];
     const store = useStore();
     const userId = store.state.user;
+    const menuIdx = ref<number>(props.index);
 
-    const delConfig = (type: number, idx: number) => {
-      switch (type) {
-        case 0:
-          store.state.data_addrs.splice(idx, 1);
-          break;
-        case 1:
-          store.state.fetch_addrs.splice(idx, 1);
-          break;
-      }
+    const delConfigHandler = (type: number, idx: number, uid: string) => {
+      delUserConfig({
+        uid: uid,
+      }).then((res) => {
+        console.log(res);
+        if (res && res.Success && res.Code == "0000") {
+          switch (type) {
+            case 0:
+              store.state.data_addrs.splice(idx, 1);
+              break;
+            case 1:
+              store.state.fetch_addrs.splice(idx, 1);
+              break;
+          }
+        }
+      });
     };
 
     const showInputBox = (idx: number) => {
@@ -119,18 +137,17 @@ export default defineComponent({
       }).then((res) => {
         console.log(res);
         if (res.Success && res.Code == "0000") {
+          const value = {
+            uid: res.Result.uid,
+            value: inputValue[idx],
+            enable: false,
+          };
           switch (idx) {
             case 0:
-              store.state.data_addrs.push({
-                value: inputValue[idx],
-                enable: false,
-              });
+              store.state.data_addrs.push(value);
               break;
             case 1:
-              store.state.fetch_addrs.push({
-                value: inputValue[idx],
-                enable: false,
-              });
+              store.state.fetch_addrs.push(value);
               break;
           }
         }
@@ -139,30 +156,17 @@ export default defineComponent({
       inputState.value[idx] = false;
     };
 
-    const enableHttpsHandler = (value: boolean) => {
-      console.log(value);
-    };
-
-    const watchDataListStateHandler = (idx: number) => {
-      console.log(idx);
-    };
-
-    const watchFetchListStateHandler = (idx: number) => {
-      console.log(idx);
-    };
-
     return {
+      menuIdx,
+      menuState,
       inputState,
       showInputBox,
       saveConfig,
       inputValue,
-      delConfig,
+      delConfigHandler,
       MainMenuInfo,
       MainMenuChange,
       store,
-      enableHttpsHandler,
-      watchDataListStateHandler,
-      watchFetchListStateHandler,
     };
   },
 });

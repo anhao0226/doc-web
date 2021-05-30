@@ -4,8 +4,43 @@ import { fetchDocs } from '../../services/doc'
 import { useStorage } from '../../libs/storage'
 import { InitAutoTest } from '../automated/store'
 import { data } from '../../store/test'
-// import { GConfig } from '@/store'
-// 加载配置
+
+export const menuState = ref<{ display: boolean, icon: string[], name?: string }[]>([
+  { 
+    name: "menu",
+    display: false,
+    icon: ['iconfont', 'icon-list'],
+  },
+  {
+    name: "setting",
+    display: false,
+    icon: ['iconfont', 'icon-settings'],
+  },
+  {
+    name: "message",
+    display: false,
+    icon: ['iconfont', 'icon-comment'],
+  },
+  {
+    name: "search",
+    display: false,
+    icon: ['iconfont', 'icon-search'],
+  },
+  {
+    name: "from",
+    display: false,
+    icon: ['iconfont', 'icon-form'],
+  }
+])
+
+
+
+
+
+
+
+
+
 
 const config = useStorage();
 // 记录每一层的个数
@@ -105,6 +140,11 @@ const MainMenuInfo = ref<State[]>([
   },
   {
     name: "message",
+    display: false,
+    zIndex: 2002
+  },
+  {
+    name: "notice",
     display: false,
     zIndex: 2002
   }

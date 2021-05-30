@@ -70,12 +70,14 @@ class LocalStorage {
      * @param key 
      * @param value 
      */
-    saveValue(key: string, value: string) {
-        this.setItem(key, value);
-        this.value[key] = value;
+    saveValue<T>(key: string, value: T) {
+        if (hasOwnProperty(this.value, key)) {
+            this.setItem(key, JSON.stringify(value));
+            this.value[key] = value;
+        }
     }
 
-    reset(){
+    reset() {
         console.log("reset");
     }
 

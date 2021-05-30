@@ -1,5 +1,8 @@
 <template>
-  <div class="wrapper" :style="{ height: MainMenuInfo[5].display ? '100%':'0'}">
+  <div
+    class="wrapper"
+    :style="{ height: menuState[menuIdx].display ? '100%' : '0' }"
+  >
     <div class="container">
       <div class="search-box">
         <i class="iconfont icon-search"></i>
@@ -8,7 +11,11 @@
       </div>
       <div class="search-result">
         <ul class="menu">
-          <li @click="closeMask"  v-for="(item, index) in searchIndex" :key="index">
+          <li
+            @click="closeMask"
+            v-for="(item, index) in searchIndex"
+            :key="index"
+          >
             <a :href="`#${SearchList[item]}`">{{ SearchList[item] }}</a>
             <i class="iconfont icon-link"></i>
           </li>
@@ -20,15 +27,17 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "vue";
-import { SearchList, MainMenuInfo, MainMenuChange } from "./comm";
+import { SearchList, menuState } from "./comm";
 export default defineComponent({
-  setup() {
+  props: ["index"],
+  setup(props: any) {
     const labelShowState = ref<boolean>(true);
     const searchValue = ref<string>("");
     const searchIndex = ref<number[]>([]);
+    const menuIdx = ref<number>(props.index);
 
     const closeMask = (e: any) => {
-      MainMenuChange(5)
+      menuState.value[menuIdx.value].display = false;
     };
 
     watch(searchValue, (newValue: string) => {
@@ -46,12 +55,13 @@ export default defineComponent({
     });
 
     return {
+      menuIdx,
+      menuState,
       labelShowState,
       searchValue,
       searchIndex,
       SearchList,
       closeMask,
-      MainMenuInfo,
     };
   },
 });
@@ -61,12 +71,13 @@ export default defineComponent({
 .wrapper {
   position: fixed;
   z-index: 1000;
-  top: 0;
+  top: -20px;
   left: 0;
   width: 100%;
-  background-color: rgb(255, 255, 255,0.9);
+  background-color: rgb(255, 255, 255, 0.9);
   transition: 0.2s;
   overflow: hidden;
+  background-color: brown;
 }
 .container {
   width: 50%;

@@ -2,10 +2,13 @@
 import { useStorage } from '@/libs/storage';
 import { ref, reactive, watch, watchEffect, nextTick } from 'vue';
 import { SecInputValue } from "./../libs/type";
-import { Value } from '@/libs/type'
+import { Value, Queue, NoticeState } from '@/libs/type'
 import { dataType, hasOwnProperty } from '@/libs/utils';
+import __WebSocket, { WSEvent } from '@/libs/websocket'
 
-type EventFunc = (value: any) => void
+type EventFunc = (value: any) => void;
+
+type PluginType = (store: Store) => void;
 
 interface Events {
     emits: EventFunc[];
@@ -18,6 +21,7 @@ export class Store {
     state = Object.create({});
     indexes = ref<any>({});
     events: Events[] = [];
+    plugins: PluginType[] = [];
     /**
      * 
      */
@@ -34,6 +38,11 @@ export class Store {
     }
 
     /**
+     *
+     */
+    plugin(cb: PluginType) { cb(this); }
+
+    /**
      * 
      */
     watchEvent(key: string) {
@@ -47,6 +56,7 @@ export class Store {
                 break;
             case 3:
             case 4:
+                console.log(key);
                 watch(this.state[key], (newValue: any) => {
                     this.handleEvents(key, newValue);
                 })
@@ -99,26 +109,9 @@ export class Store {
     }
 }
 
-
-const localStorage = useStorage()
-
-const storeInstance = new Store({
-    wsState: localStorage.getValue("ws_state").value || { message: {} },
-    user: localStorage.getValue("user").value,
-    email: localStorage.getValue("email").value,
-    token: localStorage.getValue("token").value,
-    data_addrs: localStorage.getValue('data_addrs').value || [],
-    fetch_addrs: localStorage.getValue('fetch_addrs').value || [],
-    https_enable: localStorage.getValue<boolean>('https_enable').value,
-    secs: localStorage.getValue('secs').value || [],
-    chatBox: null,
-    ws_conn: null,
-    ws_chat_message: [],
-});
-
 export function calculationRequestUrl(protocol: string): Value<string> {
     const len = storeInstance.state.fetch_addrs.length;
-    const value:Value<string> = { value: '', valid: false }
+    const value: Value<string> = { value: '', valid: false }
     for (let index = 0; index < len; index++) {
         if (storeInstance.state.fetch_addrs[index].enable) {
             value.valid = true;
@@ -131,24 +124,85 @@ export function calculationRequestUrl(protocol: string): Value<string> {
     return value;
 }
 
-if (storeInstance.state.user) {
+
+const localStorage = useStorage()
+
+
+
+const storeInstance = new Store({
+    wsState: localStorage.getValue("ws_state").value || { message: {} },
+    userID: localStorage.getValue("user_id").value,
+    user: localStorage.getValue("user").value,
+    email: localStorage.getValue("email").value,
+    token: localStorage.getValue("token").value,
+    data_addrs: localStorage.getValue('data_addrs').value || [],
+    fetch_addrs: localStorage.getValue('fetch_addrs').value || [],
+    https_enable: localStorage.getValue<boolean>('https_enable').value,
+    secs: localStorage.getValue('secs').value || [],
+    chatBox: null,
+    ws_conn: null,
+    user_id: localStorage.getValue("user_id").value || "",
+    chat_history: localStorage.getValue("chat_history").value || { message: {} }, //
+    chat_msg: new Queue<any>(2000),
+    last_recv_time: localStorage.getValue("last_recv_time").value || "",
+    notice: [],
+});
+
+storeInstance.plugin((store: Store) => {
     const user = storeInstance.state.user;
-    const finUrl = `${calculationRequestUrl("ws").value}/ws?user=${user}`;
-    try {
-        storeInstance.state.ws_conn = new WebSocket(finUrl);
-    }catch(e: any) {
-        // TODO
+    const urlSuffix = calculationRequestUrl("ws");
+    if ("WebSocket" in window) {
+        if (urlSuffix.valid && (user as string).length == 36) {
+            const finUrl = `${calculationRequestUrl("ws").value}/ws?user=${user}`;
+            try {
+                const ws = new __WebSocket({
+                    url: finUrl,
+                    repeatLimit: 3,
+                    reconnectTimeout: 2000
+                });
+                ws.subscribe((e: MessageEvent) => {
+                    store.state.notice.push(e);
+                })
+                store.state.ws_conn = ws;
+            } catch (e: any) {
+                console.log(e);
+            }
+        }
+    } else {
+        alert("The browser does not support websocket")
     }
+})
+
+
+
+interface UserInfo {
+    email: string;
+    user: string;
+    token: string
+    user_id: string;
 }
-//
-storeInstance.on("wsState", (value: any) => {
-    if (storeInstance.state.chatBox) {
-        nextTick(() => {
-            const h = (storeInstance.state.chatBox).scrollHeight;
-            storeInstance.state.chatBox.scrollTop = h;
-        })
-    }
+
+storeInstance.on("user_id", (value: string) => {
+    localStorage.setItem("user_id", value);
+}, true);
+
+storeInstance.on("last_recv_time", (value: string) => {
+    localStorage.setItem("last_recv_time", value);
 }, true)
+
+storeInstance.on("userID", (value: string) => {
+    localStorage.setItem("user_id", JSON.stringify(value));
+}, true)
+
+storeInstance.on("chat_msg", (value: any) => {
+    localStorage.setItem("chat_history",
+        JSON.stringify(storeInstance.state.chat_history));
+
+    nextTick(() => {
+        const h = storeInstance.state.chatBox.scrollHeight;
+        storeInstance.state.chatBox.scrollTop = h;
+    })
+}, true);
 
 //
 storeInstance.on("wsState", (value: any) => {

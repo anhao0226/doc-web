@@ -47,7 +47,9 @@ const store = useStore();
 AxiosInstance.interceptors.request.use((config: AxiosRequestConfig) => {
     const val = calculationRequestUrl("");
     if (val.valid) { config.baseURL = val.value }
-    else {config.baseURL = BASE_URL }
+    else { config.baseURL = BASE_URL }
+    config.params["user_id"] = store.state.user_id;
+    config.params["token"] = store.state.token;
     return config
 })
 
@@ -57,14 +59,14 @@ AxiosInstance.interceptors.request.use((config: AxiosRequestConfig) => {
  */
 export function calculationRequestUrl(protocol: string): Value<string> {
     const len = store.state.fetch_addrs.length;
-    const value:Value<string> = { value: '', valid: false }
+    const value: Value<string> = { value: '', valid: false }
     for (let index = 0; index < len; index++) {
         if (store.state.fetch_addrs[index].enable) {
             value.valid = true;
             let httpType = store.state.https_enable ? 'https' : 'http';
             if (protocol) { httpType = protocol }
             value.value = `${httpType}://${store.state.fetch_addrs[index].value}`;
-            break 
+            break
         }
     }
     return value;

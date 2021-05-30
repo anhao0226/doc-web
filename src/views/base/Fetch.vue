@@ -1,5 +1,9 @@
 <template>
-  <DrawerComponent v-model="MainMenuInfo[4].display" :width="300" algin="right">
+  <DrawerComponent
+    v-model="menuState[menuIdx].display"
+    :width="300"
+    algin="right"
+  >
     <template v-slot:title>
       <span v-if="currClickIdx >= 0">
         {{ comments[currClickIdx].Title[0] }}
@@ -39,11 +43,10 @@ import { defineComponent, ref, watch } from "vue";
 import {
   currClickIdx,
   comments,
-  Calculation,
-  config,
   MainMenuInfo,
   MainMenuChange,
-} from "./comm";
+  menuState,
+} from "@/views/base/comm";
 import InputComponent from "./input.vue";
 import { AxiosGeneral } from "../../libs/http";
 import { Method } from "node_modules/axios";
@@ -51,16 +54,16 @@ import DrawerComponent from "../../components/Drawer.vue";
 import { Section } from "../automated/store/type";
 import { SNodeCountAdd } from "../automated/store";
 
-
 export default defineComponent({
+  props: ["index"],
   components: {
     InputComponent,
     DrawerComponent,
   },
-  setup() {
+  setup(props: any) {
     const values = ref<string[]>([]);
-
     const result = ref<string>("");
+    const menuIdx = ref<number>(props.index);
 
     watch(currClickIdx, (newValue: number, oldValue: number) => {
       console.log(newValue, oldValue);
@@ -119,6 +122,8 @@ export default defineComponent({
     };
 
     return {
+      menuIdx,
+      menuState,
       currClickIdx,
       comments,
       values,

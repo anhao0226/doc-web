@@ -1,69 +1,77 @@
 <template>
-  <div
-    class="wrapper"
-    :style="{ bottom: MainMenuInfo[0].display ? 0 : -100 + 'px' }"
-  >
+  <div class="wrapper">
     <div class="container">
+      <div class="drawer__list">
+        <!--  -->
+        <NoticeComponent :index="0"></NoticeComponent>
+        <SettingComponent :index="1"></SettingComponent>
+        <MessageComponent :index="2"></MessageComponent>
+        <SearchComponent :index="3"></SearchComponent>
+        <FetchComponent :index="4"></FetchComponent>
+      </div>
       <ul class="list-box">
-        <i
-          class="iconfont icon-home"
-          :style="{ color: MainMenuInfo[1].display ? '#1875f0' : '' }"
-          @click="MainMenuChange(1)"
-        ></i>
-        <i
-          class="iconfont icon-list"
-          :style="{ color: MainMenuInfo[2].display ? '#1875f0' : '' }"
-          @click="MainMenuChange(2)"
-        ></i>
-        <i
-          class="iconfont icon-settings"
-          :style="{ color: MainMenuInfo[3].display ? '#1875f0' : '' }"
-          @click="MainMenuChange(3)"
-        ></i>
-        <i
-          class="iconfont icon-form"
-          :style="{ color: MainMenuInfo[4].display ? '#1875f0' : '' }"
-          @click="MainMenuChange(4)"
-        ></i>
-        <i
-          class="iconfont icon-search"
-          :style="{ color: MainMenuInfo[5].display ? '#1875f0' : '' }"
-          @click="MainMenuChange(5)"
-        ></i>
-        <!-- 跳转到自动化测试页面 -->
-        <router-link :to="{ name: 'automated' }">
-          <i
-            class="iconfont icon-wenjuan"
-            :style="{ color: MainMenuInfo[6].display ? '#1875f0' : '' }"
-            @click="MainMenuChange(6)"
-          ></i>
-        </router-link>
-
-         <router-link :to="{ name: 'login' }">
-          <i
-            class="iconfont icon-smile"
-            :style="{ color: MainMenuInfo[7].display ? '#1875f0' : '' }"
-            @click="MainMenuChange(7)"
-          ></i>
-        </router-link>
-
-         <i
-          class="iconfont icon-comment"
-          :style="{ color: MainMenuInfo[8].display ? '#1875f0' : '' }"
-          @click="MainMenuChange(8)"
-        ></i>
-        <i>{{ CommentsLen }}</i>
+        <!-- notice -->
+        <li>
+          <i :class="menuState[0].icon" @click="openDrawerHandler(0)"></i>
+        </li>
+        <!-- setting -->
+        <li>
+          <i :class="menuState[1].icon" @click="openDrawerHandler(1)"></i>
+        </li>
+        <!-- message -->
+        <li>
+          <i :class="menuState[2].icon" @click="openDrawerHandler(2)"></i>
+        </li>
+        <!-- search -->
+        <li>
+          <i :class="menuState[3].icon" @click="openDrawerHandler(3)"></i>
+        </li>
+        <!-- fetch -->
+        <li>
+          <i :class="menuState[4].icon" @click="openDrawerHandler(4)"></i>
+        </li>
+        <!-- login -->
+        <li>
+          <router-link :to="{ name: 'login' }">
+            <i class="iconfont icon-smile"></i>
+          </router-link>
+        </li>
+        <!-- automated -->
+        <li>
+          <router-link :to="{ name: 'automated' }">
+            <i class="iconfont icon-wenjuan"></i>
+          </router-link>
+        </li>
       </ul>
     </div>
   </div>
 </template>
 
 <script lang='ts'>
-import { defineComponent } from "vue";
-import { MainMenuChange, CommentsLen, MainMenuInfo } from "./comm";
+import { defineComponent, ref } from "vue";
+import { MainMenuChange, CommentsLen, MainMenuInfo, menuState } from "./comm";
+import NoticeComponent from "@/views/base/notice.vue";
+import SettingComponent from "@/views/base/setting.vue";
+import MessageComponent from "@/views/base/message.vue";
+import SearchComponent from "@/views/base/search.vue";
+import FetchComponent from "@/views/base/fetch.vue";
+
 export default defineComponent({
+  components: {
+    NoticeComponent,
+    SettingComponent,
+    MessageComponent,
+    SearchComponent,
+    FetchComponent,
+  },
   setup() {
+    const openDrawerHandler = (i: number) => {
+      menuState.value[i].display = !menuState.value[i].display;
+    };
+
     return {
+      menuState,
+      openDrawerHandler,
       MainMenuChange,
       CommentsLen,
       MainMenuInfo,
@@ -79,7 +87,8 @@ export default defineComponent({
   width: 100%;
   transition: 0.3s;
   padding: 8px 0;
-  z-index: 2001;
+  left: 0;
+  bottom: 0;
 }
 .container {
   width: 600px;
@@ -90,20 +99,24 @@ export default defineComponent({
   overflow: hidden;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
+
 .list-box {
+  height: 100%;
   width: 100%;
-  display: inline-block;
-  /* background-color: tomato; */
-  text-align: center;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
-.list-box i {
-  display: inline-block;
-  height: 60px;
-  width: 60px;
+
+.list-box li {
+  display: flex;
+  flex-direction: column;
   text-align: center;
-  line-height: 60px;
-  cursor: pointer;
-  font-size: 1.6rem;
-  /* background-color: rosybrown; */
+  padding: 0 16px;
+}
+
+.list-box li i {
+  font-size: 1.8rem;
 }
 </style>

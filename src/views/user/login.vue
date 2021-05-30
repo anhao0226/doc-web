@@ -2,9 +2,9 @@
   <!-- 用户登录 -->
   <div class="login-container">
     <div class="user_info" v-if="loginState">
-      <span>{{userinfo.email}}</span>
+      <span>{{ userinfo.email }}</span>
       <span @click="logoutHandler">logout</span>
-      <router-link :to="{ name: 'register'}"> Register</router-link>
+      <router-link :to="{ name: 'register' }"> Register</router-link>
     </div>
     <div class="user_login" v-else>
       <span>
@@ -45,7 +45,7 @@ export default defineComponent({
     const loginState = ref<boolean>(false);
 
     onMounted(() => {
-      if(store.state.token !== ""){
+      if (store.state.token !== "") {
         loginState.value = true;
         userinfo.value.email = store.state.email;
       }
@@ -63,20 +63,21 @@ export default defineComponent({
               store.commit("user", res.Result.user).emit("user");
               store.commit("token", res.Result.token).emit("token");
               store.commit("email", res.Result.email).emit("email");
-              
+              store.commit("userID", res.Result.id).emit("userID");
+              store.commit("user_id", res.Result.uid).emit("user_id");
+
               res.Result.config.forEach((item: any) => {
+                const value = {
+                  uid: item.uid,
+                  value: item.text,
+                  enable: item.enable == 0 ? false : true,
+                }
                 switch (item.type) {
                   case "0":
-                    store.state.data_addrs.push({
-                      value: item.text,
-                      enable: item.enable == 0 ? false : true,
-                    });
+                    store.state.data_addrs.push(value);
                     break;
                   case "1":
-                    store.state.fetch_addrs.push({
-                      value: item.text,
-                      enable: item.enable == 0 ? false : true,
-                    });
+                    store.state.fetch_addrs.push(value);
                     break;
                 }
               });
@@ -91,7 +92,7 @@ export default defineComponent({
 
     const logoutHandler = () => {
       loginState.value = false;
-    }
+    };
     return {
       loginState,
       userinfo,
@@ -110,7 +111,8 @@ export default defineComponent({
   height: 100%;
 }
 
-.user_login, .user_info {
+.user_login,
+.user_info {
   width: 100%;
   height: 100%;
   display: flex;

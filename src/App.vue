@@ -16,7 +16,7 @@ import { defineComponent, onMounted, reactive, ref, watch } from "vue";
 import { MainMenuInfo, } from "./views/base/comm";
 import { GBoxStateInfo, useStore } from "./store/index";
 
-import HeaderComponent from "./views/base/Header.vue";
+import HeaderComponent from "./views/base/header.vue";
 
 export default defineComponent({
   components: {
@@ -111,6 +111,7 @@ export default defineComponent({
   font-family: Helvetica Neue, Helvetica, PingFang SC, Hiragino Sans GB,
     Microsoft YaHei, SimSun, sans-serif;
 }
+
 ::-webkit-scrollbar {
   width: 4px;
   height: 4px;
@@ -122,6 +123,12 @@ export default defineComponent({
   box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
   background: rgba(0, 0, 0, 0.2);
   scrollbar-arrow-color: slategray;
+}
+
+*{
+  /* scrollbar-width: thin !important; */
+  scrollbar-width:5px;
+
 }
 
 html,

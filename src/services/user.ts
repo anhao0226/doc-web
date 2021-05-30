@@ -1,4 +1,4 @@
-import { RequestOp, Response, AxiosPost, AxiosGet } from "@/libs/http";
+import { RequestOp, Response, AxiosPost, AxiosGet, AxiosDelete } from "@/libs/http";
 import { encryptionPassword } from '@/libs/utils'
 
 /**
@@ -57,6 +57,27 @@ export function addUserConfig(
 /**
  * 
  */
+ export function delUserConfig(
+    params: {
+        uid: string
+    }
+): Promise<Response> {
+    return new Promise((resolve: any, reject: any) => {
+        AxiosDelete({
+            url: 'user/config/del',
+            params: params,
+            success: (data: any) => {
+                resolve(data);
+            },
+            error: (err: Error) => {
+                reject(err);
+            }
+        })
+    })
+}
+/**
+ * 
+ */
 export function sendMessage(
     params: {
         sender: string,
@@ -67,6 +88,28 @@ export function sendMessage(
     return new Promise((resolve: any, reject: any) => {
         AxiosPost({
             url: 'user/message/send',
+            params: params,
+            success: (data: any) => {
+                resolve(data);
+            },
+            error: (err: Error) => {
+                reject(err);
+            }
+        })
+    })
+}
+/**
+ * 
+ */
+export function pullMessage(params: {
+    sender: string,
+    user_id: string
+    receiver: string,
+    time: string,
+}): Promise<Response> {
+    return new Promise((resolve: any, reject: any) => {
+        AxiosGet({
+            url: 'user/message/pull',
             params: params,
             success: (data: any) => {
                 resolve(data);
@@ -102,7 +145,7 @@ export function userBuddys(
 /**
  *  
  */
- export function userIsExit(
+export function userIsExit(
     params: {
         email: string
     }
@@ -124,7 +167,7 @@ export function userBuddys(
 /**
  * 
  */
- export function userRegister(
+export function userRegister(
     params: {
         email: string
         password: string
