@@ -2,7 +2,7 @@
 
 ## Data Struct
 ```
-{
+[{
     Title:["test"],
     Url: ["api/v1/test"],
     Header: ["application/x-www-form-urlencoded"],
@@ -11,7 +11,7 @@
         ["a","string"],
         ["b","string"]
     ],
-}
+}]
 ```
 
 ## Project setup
