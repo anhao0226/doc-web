@@ -2,7 +2,7 @@
 import { reactive } from 'vue';
 
 export enum MessageType {
-  ChatMessageSend=  0,
+  ChatMessageSend = 0,
   InputNotice = 1,
   PingMessage = 9,
   PongMessage = 10,
@@ -31,11 +31,9 @@ export interface NoticeState extends Message {
   State: number;
 }
 
-
 /**
  * 
  */
-
 export class Queue<T> {
 
   rear = 0;
@@ -50,6 +48,13 @@ export class Queue<T> {
   reset() {
     this.rear = this.front = 0;
     this.value = [];
+  }
+
+  isEmpty(): boolean {
+    if (this.rear === this.front) {
+      return true;
+    }
+    return false;
   }
 
   isFull(): boolean {
@@ -68,8 +73,16 @@ export class Queue<T> {
     return true;
   }
 
-  pop() {
-    // TODO
+  pop(): T | boolean {
+    if (this.isEmpty()) {
+      return false;
+    }
+    this.front = (this.front + 1) % this.size;
+    return this.value.shift()
+  }
+
+  top(): T {
+    return this.value[this.front];
   }
 
 }

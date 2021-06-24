@@ -8,6 +8,7 @@
         <MessageComponent :index="2"></MessageComponent>
         <SearchComponent :index="3"></SearchComponent>
         <FetchComponent :index="4"></FetchComponent>
+        <MenuComponent :index="5"> </MenuComponent>
       </div>
       <ul class="list-box">
         <!-- notice -->
@@ -24,13 +25,13 @@
         <li>
           <i :class="menuState[2].icon" @click="openDrawerHandler(2)"></i>
         </li>
-        <!-- search -->
-        <li>
-          <i :class="menuState[3].icon" @click="openDrawerHandler(3)"></i>
-        </li>
         <!-- fetch -->
         <li>
           <i :class="menuState[4].icon" @click="openDrawerHandler(4)"></i>
+        </li>
+        <!-- menu -->
+        <li>
+          <i :class="menuState[5].icon" @click="openDrawerHandler(5)"></i>
         </li>
         <!-- login -->
         <li>
@@ -57,11 +58,13 @@ import SettingComponent from "@/views/base/setting.vue";
 import MessageComponent from "@/views/base/message.vue";
 import SearchComponent from "@/views/base/search.vue";
 import FetchComponent from "@/views/base/fetch.vue";
+import MenuComponent from '@/views/base/menu.vue';
 import Badeg from '@/views/base/badge.vue'
 import { useStore } from '@/store'
 
 export default defineComponent({
   components: {
+    MenuComponent,
     NoticeComponent,
     SettingComponent,
     MessageComponent,

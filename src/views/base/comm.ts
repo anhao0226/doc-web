@@ -2,11 +2,12 @@
 import { ref } from 'vue'
 import { fetchDocs } from '../../services/doc'
 import { useStorage } from '../../libs/storage'
-import { InitAutoTest } from '../automated/store'
+import { InitAutoTest  } from '../automated/store'
 import { data } from '../../store/test'
+import { calculationRequestUrl } from '@/libs/http'
 
 export const menuState = ref<{ display: boolean, icon: string[], name?: string }[]>([
-  { 
+  {
     name: "notice",
     display: false,
     icon: ['iconfont', 'icon-xiaoxizhongxin'],
@@ -30,6 +31,11 @@ export const menuState = ref<{ display: boolean, icon: string[], name?: string }
     name: "from",
     display: false,
     icon: ['iconfont', 'icon-form'],
+  },
+  {
+    name: "menu",
+    display: false,
+    icon: ['iconfont', 'icon-list'],
   }
 ])
 
@@ -133,27 +139,28 @@ function formatComment(v: Comment[]): any {
   return v
 }
 
+
+comments.value = formatComment(data as any);
+CommentsLen.value = comments.value.length;
 // 获取文档
 function FetchComments() {
 
-  const addr = config.value.dataAddr
-  if (addr.length == 0) return
-
-  fetchDocs({
-    url: `http://${addr[0]}/doc/v1/list`,
-  }).then(res => {
-    if (res.Success) {
-      console.log(JSON.stringify(res.Data))
-      comments.value = formatComment(res.Data);
-      CommentsLen.value = comments.value.length;
-    }
-  })
+  const v = calculationRequestUrl("")
+  if (v.valid) {
+    fetchDocs({
+      url: `${v.value}/doc/v1/list`,
+    }).then(res => {
+      if (res.Success && Array.isArray(res.Data)) {
+        comments.value = formatComment(res.Data);
+        CommentsLen.value = comments.value.length;
+      }
+    })
+  } 
 }
 
 
-// FetchComments();
+FetchComments();
 
-comments.value = formatComment(data as any);
 
 
 

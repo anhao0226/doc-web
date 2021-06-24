@@ -221,7 +221,7 @@ export default defineComponent({
       menuClickEvent,
 
       showGBox,
-      SNodeList
+      SNodeList,
     };
   },
 });

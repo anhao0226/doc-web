@@ -7,7 +7,7 @@
       <i class="iconfont icon-more"></i>
     </div>
     <ul class="message__list">
-      <li v-for="(item, index) in store.state.chat_msg.value" :key="index">
+      <li v-for="(item, index) in store.state.user_chat_cache[uidx || 0].message || []" :key="index">
         <div class="left" v-if="item.type == 1">
           <span>{{ item.text }}</span>
         </div>
@@ -49,10 +49,11 @@ import { hasOwnProperty } from "@/libs/utils";
 import { Queue, MessageType } from "@/libs/type";
 import __WebSocket from "@/libs/websocket";
 export default defineComponent({
-  props: ["chatState", "close"],
+  props: ["chatState", "close", "uidx"],
   emits: ["close"],
   components: {},
   setup(props: any, ctx: any) {
+    console.log(props);
     const store = useStore();
     const user = store.state.user;
     const userID = store.state.userID;
@@ -63,17 +64,7 @@ export default defineComponent({
 
     onMounted(() => {
       receiver = props.chatState.object;
-      (store.state.chat_msg as Queue<any>).reset();
-      store.state.chatBox = document.getElementsByClassName("message__list")[0];
-      if (hasOwnProperty(store.state.chat_history.message, receiver)) {
-        store.state.chat_history.message[receiver].forEach(
-          (msg: MessageState) => {
-            (store.state.chat_msg as Queue<any>).push(msg);
-          }
-        );
-      } else {
-        store.state.chat_history.message[receiver] = [];
-      }
+      store.state.chat_box = document.getElementsByClassName("message__list")[0];
       pullHistoryMessageHandler();
     });
 
@@ -100,6 +91,7 @@ export default defineComponent({
     };
 
     const pullHistoryMessageHandler = () => {
+      console.log("test");
       pullMessage({
         sender: receiver,
         user_id: userID,
@@ -109,10 +101,10 @@ export default defineComponent({
         if (res && res.Success && res.Code == "0000") {
           if (res.Result) {
             res.Result.forEach((msg: any) => {
-              (store.state.chat_msg as Queue<any>).push({
-                type: 1,
-                text: msg.text,
-              });
+               store.state.user_chat_cache[props.uidx].message.push({
+                 type: 1,
+                 text: msg.text,
+               });
             });
           }
         }
@@ -128,8 +120,7 @@ export default defineComponent({
       }).then((res) => {
         if (res.Success && res.Code == "0000") {
           const msg = { type: 0, text: send_text.value };
-          (store.state.chat_msg as Queue<any>).push(msg);
-          store.state.chat_history.message[receiver].push(msg);
+          store.state.user_chat_cache[props.uidx].message.push(msg);
           send_text.value = "";
         }
       });

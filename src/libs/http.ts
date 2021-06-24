@@ -28,7 +28,7 @@ function runEnv(): string | undefined {
 // 开发环境
 const DEVELOPMENT_BASE_URL = "http://47.98.203.193:3000/";
 // 生产环境
-const PRODUCTION_BASE_URL = "http://127.0.0.1:3000/";
+const PRODUCTION_BASE_URL = "http://127.0.0.1:8888/";
 
 
 const BASE_URL = (runEnv() != undefined && runEnv() == 'development')
@@ -106,7 +106,7 @@ export function AxiosPut(config: RequestOp) {
     AxiosInstance({
         url: config.url,
         method: 'PUT',
-        params: config.params
+        params: config.params,
     }).then(res => {
         config.success(res.data)
     }).catch(err => {

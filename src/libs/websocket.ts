@@ -67,7 +67,7 @@ export default class __WebSocket {
         }
     }
 
-    initWatchHandle(){
+    initWatchHandle() {
         this.websocket.onerror = (ev: Event) => {
             if (this.onerror) { this.onerror(ev) }
             console.log("onerror")
@@ -75,22 +75,22 @@ export default class __WebSocket {
         }
         this.websocket.onclose = (ev: CloseEvent) => {
             if (this.onclose) { this.onclose(ev) }
-            console.log("onclose")
-            this.reconnect()
+            console.log("onclose");
+            this.reconnect();
         }
         this.websocket.onopen = (ev: Event) => {
             if (this.onopen) { this.onopen(ev) }
             this.repeat = 0;
-            this.heartCheck()
+            this.heartCheck();
         }
         this.websocket.onmessage = (e: MessageEvent) => {
-            const msg:HeartMessage = JSON.parse(e.data);
-            if(msg.Type !== this.pongMessage) {
+            const msg: HeartMessage = JSON.parse(e.data);
+            if (msg.Type !== this.pongMessage) {
                 this.subs.forEach(sub => {
-                    sub.event(e, this)
+                    sub.event(e, this);
                 })
             }
-            this.heartCheck()
+            this.heartCheck();
         }
     }
 
@@ -102,7 +102,7 @@ export default class __WebSocket {
     heartStart() {
         if (this.forbidReconnect) return;
         this.pingTimer = setTimeout(() => {
-            this.send(JSON.stringify({Text: "Heartbeat", Type: 9}));
+            this.send(JSON.stringify({ Text: "Heartbeat", Type: 9 }));
             this.pongTimer = setTimeout(() => {
                 this.websocket.close();
             }, this.pongWait);
@@ -114,18 +114,25 @@ export default class __WebSocket {
         clearTimeout(this.pongTimer);
     }
 
-    reconnect() {
+    reconnectLock(): string {
+        return window.localStorage.getItem("lock_reconnect") || "flase"
+    }
+
+    reconnectunLock(){
+        window.localStorage.setItem("lock_reconnect", "true");
+    }
+
+    reconnect() {  
         console.log(this.repeat);
         if (this.repeatLimit > 0 && this.repeatLimit <= this.repeat) return;
-        if (this.lockReconnect && this.forbidReconnect) return;
-        this.lockReconnect = true;
+        if (this.reconnectLock() == "true" && this.forbidReconnect) return;
         this.repeat++;
         if (this.onreconnect !== null) { this.onreconnect() }
         setTimeout(() => {
             this.createWebsocket();
-            this.lockReconnect = false;
+            this.reconnectunLock()
         }, this.reconnectTimeout);
-    }
+    } 
 
     close() {
         this.forbidReconnect = true;

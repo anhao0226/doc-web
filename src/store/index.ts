@@ -135,17 +135,27 @@ const storeInstance = new Store({
     user: localStorage.getValue("user").value,
     email: localStorage.getValue("email").value,
     token: localStorage.getValue("token").value,
+    // 保存数据加载地址
     data_addrs: localStorage.getValue('data_addrs').value || [],
+    // 保存测试地址
     fetch_addrs: localStorage.getValue('fetch_addrs').value || [],
+    // 是否开启https测试
     https_enable: localStorage.getValue<boolean>('https_enable').value,
+    // 包测自动测试节点
     secs: localStorage.getValue('secs').value || [],
-    chatBox: null,
+    chat_box: null,
+    // websocket对象
     ws_conn: null,
+    // 用户的唯一id
     user_id: localStorage.getValue("user_id").value || "",
-    chat_history: localStorage.getValue("chat_history").value || { message: {} }, //
-    chat_msg: new Queue<any>(2000),
+    // 最后读取时间
     last_recv_time: localStorage.getValue("last_recv_time").value || "",
+    // 消息通知
     notice: [],
+    // 用户索引
+    user_index: localStorage.getValue("user_index").value || { list: {} },
+    // 用户聊天缓存
+    user_chat_cache: localStorage.getValue("user_chat_cache").value || [],
 });
 
 storeInstance.plugin((store: Store) => {
@@ -162,9 +172,26 @@ storeInstance.plugin((store: Store) => {
                 });
                 ws.subscribe((e: MessageEvent) => {
                     const msg = JSON.parse(e.data);
+                    store.state.last_recv_time = new Date().toUTCString();
                     switch (msg.Type) {
-                        case 0:
-                            store.state.notice.push(msg);
+                        case 0: // chat message
+                            if (hasOwnProperty(store.state.user_index.list, msg.Sender)) {
+                                const idx = store.state.user_index.list[msg.Sender].seek;
+                                if (!store.state.user_chat_cache[idx]) {
+                                    store.state.user_chat_cache[idx] = { message: [] };
+                                }
+                                store.state.user_chat_cache[idx].message.push({
+                                    type: 1,
+                                    text: msg.Text,
+                                });
+                            }
+                            store.state.notice.push({
+                                text: msg.Text,
+                                email: store.state.user_index.list[msg.Sender].email,
+                            });
+                            break;
+                        case 1:
+                            break;
                     }
                 })
                 store.state.ws_conn = ws;
@@ -177,14 +204,17 @@ storeInstance.plugin((store: Store) => {
     }
 })
 
+storeInstance.on("user_index", (value: any) => {
+    localStorage.setItem("user_index", JSON.stringify(value));
+}, true);
 
-
-interface UserInfo {
-    email: string;
-    user: string;
-    token: string
-    user_id: string;
-}
+storeInstance.on("user_chat_cache", (value: any) => {
+    localStorage.setItem("user_chat_cache", JSON.stringify(value));
+    nextTick(() => {
+        const h = storeInstance.state.chat_box.scrollHeight;
+        storeInstance.state.chat_box.scrollTop = h;
+    })
+}, true)
 
 storeInstance.on("user_id", (value: string) => {
     localStorage.setItem("user_id", value);
@@ -197,16 +227,6 @@ storeInstance.on("last_recv_time", (value: string) => {
 storeInstance.on("userID", (value: string) => {
     localStorage.setItem("user_id", JSON.stringify(value));
 }, true)
-
-storeInstance.on("chat_msg", (value: any) => {
-    localStorage.setItem("chat_history",
-        JSON.stringify(storeInstance.state.chat_history));
-
-    nextTick(() => {
-        const h = storeInstance.state.chatBox.scrollHeight;
-        storeInstance.state.chatBox.scrollTop = h;
-    })
-}, true);
 
 //
 storeInstance.on("wsState", (value: any) => {

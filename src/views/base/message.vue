@@ -20,6 +20,7 @@
       </ul>
 
       <ChatComponent
+        :uidx="chatUidx"
         :chatState="chatState"
         @close="showBuddyPageHandler"
         v-else
@@ -43,6 +44,7 @@ interface Buddy {
   email: string;
   object: string;
   uid: string;
+  user_id?: string;
   input: boolean;
 }
 
@@ -56,7 +58,8 @@ export default defineComponent({
     const text = ref<string>("");
     const store = useStore();
     const user = store.state.user;
-    const menuIdx = ref<number>(props.index); 
+    const menuIdx = ref<number>(props.index);
+    const chatUidx = ref<number>(0);
 
     const chatState = ref<Buddy>({
       email: "",
@@ -80,11 +83,6 @@ export default defineComponent({
     const handleMessageHandler = (msg: ChatMessage) => {
       switch (msg.Type) {
         case 0: {
-          const m = { type: 1, text: msg.Text };
-          if (msg.Sender === chatState.value.object) {
-            store.state.chat_msg.push(m);
-            store.state.chat_history.message[chatState.value.object].push(m);
-          }
           break;
         }
         case 1:
@@ -103,7 +101,24 @@ export default defineComponent({
 
     const fetchBuddyListHandler = () => {
       userBuddys({ user: user }).then((res) => {
+        console.log(res);
         if (res.Success && res.Code == "0000") {
+          let uindex: any = {};
+          const oldIndex = store.state.user_index.list;
+          res.Result.forEach((buddy: Buddy) => {
+            if (hasOwnProperty(oldIndex, buddy.object)) {
+              uindex[buddy.object] = oldIndex[buddy.object];
+            } else {
+              const seek = parseInt(buddy.user_id!) % 10;
+              uindex[buddy.object] = {
+                email: buddy.email,
+                state: 0,
+                seek: seek,
+              };
+              store.state.user_chat_cache[seek] = { message: [] };
+            }
+          });
+          store.state.user_index.list = uindex;
           buddys.value = res.Result;
         }
       });
@@ -119,6 +134,7 @@ export default defineComponent({
 
     const changeChatStateHandler = (idx: number) => {
       chatState.value = buddys.value[idx];
+      chatUidx.value = store.state.user_index.list[chatState.value.object].seek;
       showChatBox.value = true;
     };
 
@@ -126,6 +142,7 @@ export default defineComponent({
       user,
       text,
       store,
+      chatUidx,
       buddys,
       menuIdx,
       menuState,

@@ -2,8 +2,6 @@
 
 const date = new Date();
 
-
-
 function zeroFill(val) {
     return val > 10 ? val : `0${val}`
 }
@@ -18,9 +16,6 @@ function formatDate() {
     return `${year}-${month}-${day} ${hour}:${minutes}:${second}`;
 }
 
-
 console.log(formatDate())
-
-
 
 console.log( new Date(new Date().toUTCString()))

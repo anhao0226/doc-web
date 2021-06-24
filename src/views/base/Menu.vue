@@ -1,5 +1,9 @@
 <template>
-  <DrawerCompoment v-model="MainMenuInfo[2].display" algin="right" :width="300">
+  <DrawerCompoment
+    v-model="menuState[menuIdx].display"
+    algin="right"
+    :width="300"
+  >
     <template v-slot:title>Menu</template>
     <template v-slot:content>
       <div class="search-box">
@@ -24,24 +28,25 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted,ref } from "vue";
-import { SearchList, MainMenuInfo, MainMenuChange, comments } from "./comm";
+import { defineComponent, onMounted, ref } from "vue";
+import { SearchList, comments, menuState } from "./comm";
 import { _inputValues, _commentIndex } from "../../store/index";
 import DrawerCompoment from "../../components/Drawer.vue";
 
 export default defineComponent({
+  props: ["index"],
   components: {
     DrawerCompoment,
   },
-  setup() {
-
-    const searchResult = ref<string[]>([])
+  setup(props: any) {
+    const menuIdx = ref<number>(props.index);
+    const searchResult = ref<string[]>([]);
 
     onMounted(() => {
-      SearchList.value.forEach(ele => {
-        searchResult.value.push(ele)
-      })
-    })
+      SearchList.value.forEach((ele) => {
+        searchResult.value.push(ele);
+      });
+    });
 
     const formatInputVals = (index: number) => {
       _commentIndex.value = index;
@@ -56,20 +61,19 @@ export default defineComponent({
       });
     };
 
-
-    const searchValue = (text:string) => {
-      searchResult.value = SearchList.value.filter( ele => {
+    const searchValue = (text: string) => {
+      searchResult.value = SearchList.value.filter((ele) => {
         console.log(ele.includes(text));
-        return ele.includes(text)
-      })
-    }
+        return ele.includes(text);
+      });
+    };
 
     return {
+      menuIdx,
       searchValue,
       searchResult,
-      MainMenuInfo,
-      MainMenuChange,
       formatInputVals,
+      menuState,
     };
   },
 });
@@ -133,7 +137,6 @@ export default defineComponent({
   border-radius: 6px;
   text-indent: 10px;
 }
-
 
 .menu li {
   display: flex;

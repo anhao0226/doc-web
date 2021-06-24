@@ -729,6 +729,8 @@ export const data = [{
 	"Url": [" franchisee/sendPoints"],
 	"Params": [
 		[" company", "string", "公司uuid"],
+		[" type", "string", "赠送对象类型"],
+		[" ptype", "string", "赠送积分类型"],
 		[" staff", "string", "员工uuid"],
 		[" sendInfo", "string", "赠送信息", " 格式 => 赠送额度|赠送对象 多个以_拼接"]
 	],

@@ -32,6 +32,7 @@ import InputComponent from "../base/input.vue";
 import { useRouter } from "vue-router";
 import { userLogin } from "@/services/user";
 import { useStore } from "@/store/index";
+import { useStorage } from "@/libs/storage";
 export default defineComponent({
   components: {
     InputComponent: InputComponent,
@@ -41,6 +42,7 @@ export default defineComponent({
     const username = ref<string>("");
     const password = ref<string>("");
     const store = useStore();
+    const storage = useStorage()
     const userinfo = ref<{ email: string }>({ email: "" });
     const loginState = ref<boolean>(false);
 
@@ -58,6 +60,7 @@ export default defineComponent({
           password: password.value,
         })
           .then((res) => {
+            storage.clear();
             console.log(res);
             if (res.Success && res.Code == "0000") {
               store.commit("user", res.Result.user).emit("user");

@@ -77,9 +77,7 @@ class LocalStorage {
         }
     }
 
-    reset() {
-        console.log("reset");
-    }
+    clear() { this.storage.clear() }
 
     constructor() {
         const len = this.storage.length;

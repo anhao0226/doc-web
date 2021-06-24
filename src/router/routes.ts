@@ -2,7 +2,7 @@ export default [
     {
         path: '/',
         name: 'home',
-        component: () => import(/* webpackChunkName: "home" */'@/views/base/Home.vue'),
+        component: () => import(/* webpackChunkName: "home" */'@/views/base/home.vue'),
     },
     {
         path: '/automated',
