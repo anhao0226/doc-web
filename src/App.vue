@@ -1,6 +1,7 @@
 <template>
   <router-view></router-view>
   <!-- 底部菜单 -->
+  <CompanyComponent></CompanyComponent>
   <HeaderComponent></HeaderComponent>
   <div
     class="g__box"
@@ -14,12 +15,13 @@
 <script lang="ts">
 import { defineComponent, onMounted, reactive, ref, watch } from "vue";
 import { GBoxStateInfo, useStore } from "./store/index";
-
+import CompanyComponent from '@/views/company/company.vue'
 import HeaderComponent from "./views/base/header.vue";
 
 export default defineComponent({
   components: {
     HeaderComponent,
+    CompanyComponent,
   },
   setup() {
     let prev = 0;
