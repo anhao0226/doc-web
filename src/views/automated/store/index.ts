@@ -9,6 +9,11 @@ import { useStore } from '@/store';
 const store = useStore();
 const storage = useStorage();
 
+
+
+
+
+
 // cnavas 信息
 const CanvasState = { ctx: null, canvas: null }
 // 抽屉状态了
@@ -33,79 +38,8 @@ const SRequestResult = ref<any>({});
 function SNodeCountAdd(): number {
     return ++SNodeCount
 }
-// 切换节点
-function SNodeToggle(s: Section) {
-    currNode.state.select = false;
-    s.state.select = true;
-    currNode = s;
-    SInputVals.value = s.input;
-    SVerifyVals.value = s.verify;
-    SBaseInfo.value.title = s.request.title;
-    SDrawerState.value.details = true;
-    SRequestResult.value = s.result;
-}
-// 节点移动
-function SNodeMove(pos: { x: number, y: number }) {
-    currNode.pos.sx = pos.x;
-    currNode.pos.sy = pos.y;
-}
-// 删除节点(当前节点的delete状态)
-function SRemoveNode() {
-    currNode.state.delete = true;
-}
-// 保存子节点
-function SNewChildNode() {
-    const fnode = currNode;
-    console.log(fnode);
-    const len = fnode.children.length;
-    const child = new Section(0, 0);
-    child.id = ++SNodeCount;
-    if (len == 0) {
-        child.pos.sx = fnode.pos.sx - 100;
-        child.pos.sy = fnode.pos.sy + 100;
-    } else {
-        const end = fnode.children[len - 1];
-        child.pos.sx = end.pos.sx + 100;
-        child.pos.sy = fnode.pos.sy + 100;
-    }
-    SNodeList.value.push(child);
-    fnode.children.push(child);
-}
-// 创建根节点
-function SNewRootNode() {
-    console.log(currNode);
-    const { sx, sy } = currNode.pos;
-    const node = new Section(sx + 100, sy);
-    node.id = ++SNodeCount;
-    SRootNode.value.children.push(node);
-    SNodeList.value.push(node);
-}
-/**
- * 保存节点
- */
-function SSaveNode() {
-    currNode.request = SBaseInfo.value;
-    currNode.input = SInputVals.value;
-    currNode.output = SVerifyVals.value;
-    saveNode();
-}
-/**
- * 
- */
-function saveNode() {
-    const clearNode = (src: Section) => {
-        for (let i = 0; i < src.children.length; i++) {
-            if (src.children[i].state.delete) {
-                src.children.splice(i, 1);
-                continue;
-            }
-            clearNode(src.children[i]);
-        }
-    }
-    clearNode(SRootNode.value);
-    console.log("save node");
-    storage.saveValue('secs', JSON.stringify(SRootNode.value))
-}
+
+
 /**
  * 
  * @param to 
@@ -114,8 +48,8 @@ function saveNode() {
 function SDrawLink(to: { x: number, y: number }, add: { x: number, y: number }) {
     const cx = currNode.pos.sx + 25;
     const cy = currNode.pos.sy + 25;
-    const line = new Line(CanvasState.ctx, cx + add.x, cy + add.y, to.x, to.y);
-    line.renderAngle();
+   // const line = new Line(CanvasState.ctx, cx + add.x, cy + add.y, to.x, to.y);
+    //line.renderAngle();
 }
 /**
  * 
@@ -145,13 +79,7 @@ export {
     SRequestResult,
     SLinked,
     SDrawLink,
-    SNodeMove,
-    SNodeToggle,
-    SNewRootNode,
-    SNewChildNode,
-    SSaveNode,
     SNodeCountAdd,
-    SRemoveNode,
 }
 
 
@@ -172,37 +100,6 @@ function traverseNode(des: Section, src: Section): boolean {
     return false;
 }
 
-// 重绘
-export function repaint(s: Section, add: { x: number, y: number }) {
-    const fx = s.pos.sx;
-    const fy = s.pos.sy;
-    for (let i = 0; i < s.children.length; i++) {
-        if (!s.children[i].state.delete) {
-            const cn = s.children[i];
-            const line = new Line(CanvasState.ctx, fx + 25 + add.x, fy + 25 + add.y, cn.pos.sx + 25 + add.x, cn.pos.sy + 25 + add.y);
-            let radius = 25;
-            const an = Math.atan2(line.sy - line.ey, line.sx - line.ex) * Math.PI / 180;
-            if (line.sy > line.ey) { radius = -radius }
-            line.ex += Math.sin(an) * radius;
-            line.ey -= Math.cos(an) * radius;
-            line.renderAngle();
-            repaint(cn, add);
-        }
-    }
-}
-// 清屏重绘
-export function SCanvasRepaint(add: { x: number, y: number }) {
-    if (CanvasState.ctx) {
-        const ctx = CanvasState.ctx as any;
-        ctx.clearRect(0, 0, (CanvasState.canvas as any).width, (CanvasState.canvas as any).height);
-        for (let i = 0; i < SRootNode.value.children.length; i++) {
-            if (!SRootNode.value.children[i].state.delete) {
-                repaint(SRootNode.value.children[i], add);
-            }
-        }
-    }
-}
-//
 export function FormatInputValue(inputs: InputValue<string>[]): any {
     const input: any = {};
     inputs.forEach((ele) => {

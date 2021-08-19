@@ -108,7 +108,6 @@ import {
   SInputVals,
   SVerifyVals,
   SDrawerState,
-  SSaveNode,
   SBaseInfo,
   SRequestResult,
 } from "./store/index";
@@ -122,7 +121,7 @@ export default defineComponent({
     const boxState = ref<boolean>(false);
 
     const saveNodeInfo = () => {
-      SSaveNode();
+      // SSaveNode();
     };
 
     const addVerifyValue = () => {

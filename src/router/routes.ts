@@ -7,7 +7,7 @@ export default [
     {
         path: '/automated',
         name: 'automated',
-        component: () => import(/* webpackChunkName: "automated" */'@/views/automated/index.vue'),
+        component: () => import(/* webpackChunkName: "automated" */'@/views/automated/index/index.vue'),
     },
     {
         path: '/login',

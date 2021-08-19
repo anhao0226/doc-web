@@ -1,16 +1,12 @@
 <template>
   <div
-    v-if="!value.state.delete"
-    class="default"
+    :class="['default', data.state.select ? 'node-select' : '']"
     :style="{
-      top: `${value.pos.sy}px`,
-      left: `${value.pos.sx}px`,
-      'background-color': bgColor,
+      top: `${data.pos.y}px`,
+      left: `${data.pos.x}px`,
     }"
   >
-    <div :class="['node__container', value.state.select ? 'node-select' : '']">
-      {{ value.id }}
-    </div>
+    {{ data.id }}
   </div>
 </template>
 
@@ -18,11 +14,11 @@
 import { defineComponent, ref, getCurrentInstance, SetupContext } from "vue";
 
 export default defineComponent({
-  props: ["value"],
+  props: ["data"],
   setup(props: any, ctx: SetupContext) {
     const bgColor = ref<string>("#6495ed");
     const mask = ref<boolean>(false);
-    
+
     return {
       mask,
       bgColor,

@@ -17,12 +17,12 @@ export class Line {
     color = "rgba(230, 230, 230)";
     ctx: any = null;
 
-    constructor(ctx: any, sx: number, sy: number, ex: number, ey: number) {
-        this.ctx = ctx;
-        this.sx = sx;
-        this.sy = sy;
-        this.ex = ex;
-        this.ey = ey;
+    constructor(value: { ctx: any, sx: number, sy: number, ex: number, ey: number }) {
+        this.ctx = value.ctx;
+        this.sx = value.sx;
+        this.sy = value.sy;
+        this.ex = value.ex;
+        this.ey = value.ey;
     }
 
     renderAngle() {
